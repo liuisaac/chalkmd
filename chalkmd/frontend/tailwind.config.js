@@ -13,6 +13,7 @@ export default {
       },
       fontFamily: {
         syne: ['Syne', 'sans-serif'],
+        inconsolata: ['Inconsolata', 'sans-serif'],
         sans: ['Inter', 'sans-serif'],
       },
     },

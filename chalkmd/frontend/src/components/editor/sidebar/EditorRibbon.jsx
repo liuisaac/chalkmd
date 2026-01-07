@@ -4,22 +4,8 @@ import { Calendar, PanelLeftCloseIcon, PanelLeftIcon, Pen, Crop, Table, Network,
 
 const EditorRibbon = ({ isOpen, setIsOpen }) => {
     return (
-        <div className="bg-topbar w-10 h-screen fixed left-0 top-0 border-r-[1px] border-[#E0E0E0] pt-2.5 gap-4 z-50 flex flex-col items-center justify-start">
-            <div className="flex flex-col items-center justify-center text-gray-500">
-                <div
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="cursor-pointer mb-5"
-                >
-                    {isOpen ? (
-                        <PanelLeftCloseIcon
-                            size={20}
-                        />
-                    ) : (
-                        <PanelLeftIcon
-                            size={20}
-                        />
-                    )}
-                </div>
+        <div className="bg-topbar w-11 h-screen fixed left-0 top-0 border-r-[1px] border-[#E0E0E0] pt-2.5 gap-4 z-40 flex flex-col items-center justify-start">
+            <div className="flex flex-col items-center justify-center text-gray-500 mt-10">
                 <Calendar size={18} className="mb-5" />
                 <AlarmClock size={18} className="mb-5" />
                 <Pen size={18} className="mb-5" />

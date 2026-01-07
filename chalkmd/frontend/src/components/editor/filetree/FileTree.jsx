@@ -62,13 +62,13 @@ const FileTree = ({ files, onFileClick }) => {
 
     if (fileTree.length === 0) {
         return (
-            <div className="text-xs text-gray-500 px-2 py-4">
+            <div className="text-[14px] text-gray-600 px-2 py-4">
                 No files found
             </div>
         );
     }
     return (
-        <div className="h-full min-h-screen w-full ml-10 select-none flex flex-col">
+        <div className="h-full min-h-screen w-full ml-12 select-none flex flex-col">
             <div className="overflow-y-auto flex-1">
                 {fileTree.map((item, index) => (
                     <FileTreeItem
