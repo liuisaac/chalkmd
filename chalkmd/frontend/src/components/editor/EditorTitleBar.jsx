@@ -4,12 +4,12 @@ import Exit from "../ui/Exit";
 import EditorTabBar from "../editor/tab/EditorTabBar";
 import { useTabContext } from "./TabContext";
 
-const EditorTitleBar = () => {
+const EditorTitleBar = ({ sidebarWidth }) => {
     const { tabs, activeTabId, setActiveTabId, createTab, closeTab } = useTabContext();
     
     return (
         <div
-            className="h-10 w-full flex items-center bg-offwhite border-b-[1px] border-[#E0E0E0] absolute top-0 left-0"
+            className="h-10 w-screen flex items-center bg-topbar border-b-[1px] border-[#E0E0E0] absolute top-0 left-0"
             style={{ "--wails-draggable": "drag" }}
         >
             <EditorTabBar 
@@ -18,6 +18,7 @@ const EditorTitleBar = () => {
                 onTabClick={setActiveTabId}
                 onTabClose={closeTab}
                 onNewTab={createTab}
+                sidebarWidth={sidebarWidth}
             />
             <div
                 className="h-full flex items-center justify-center gap-2 rounded-sm"

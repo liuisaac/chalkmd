@@ -9,7 +9,7 @@ import { useVault } from "../../../App";
 const EditorNoteBar = () => {
     const { currentFile } = useVault();
     return (
-        <div className="bg-offwhite w-full h-12 flex flex-row items-center justify-between text-gray-600 sticky top-0 select-none">
+        <div className="bg-offwhite w-full h-12 flex flex-row items-center justify-between text-gray-600 sticky top-0 select-none z-50 font-sans">
             <div className="text-gray-400 flex flex-row items-center justify-center pl-5">
                 <ArrowLeft
                     size={18}

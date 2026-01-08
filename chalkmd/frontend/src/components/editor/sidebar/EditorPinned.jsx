@@ -1,4 +1,3 @@
-import React from "react";
 import {
     BookmarkIcon,
     PanelLeftIcon,
@@ -10,11 +9,11 @@ import {
 const EditorPinned = ({ isOpen, setIsOpen }) => {
     const size = 18;
     return (
-        <div className="bg-offwhite border-b-[1px] border-[#e0e0e0] text-gray-500 w-full h-10 z-50 top-0 sticky">
-            <div className="flex flex-row justify-start items-center gap-5 pt-2.5 pl-3">
+        <div className={`bg-topbar text-gray-500 w-full min-w-11 h-10 z-50 top-0 sticky overflow-hidden`}>
+            <div className="flex flex-row justify-start items-center gap-5 pt-2.5 pl-3 w-full">
                 <div
                     onClick={() => setIsOpen(!isOpen)}
-                    className="cursor-pointer"
+                    className="cursor-pointer flex-shrink-0"
                 >
                     {isOpen ? (
                         <PanelLeftCloseIcon size={size} />
@@ -22,13 +21,17 @@ const EditorPinned = ({ isOpen, setIsOpen }) => {
                         <PanelLeftIcon size={size} />
                     )}
                 </div>
-                <FolderIcon size={size} className="inline-block" />
-                <SearchIcon size={size} className="inline-block" />
-                <BookmarkIcon
-                    size={size}
-                    className="inline-block"
-                    onClick={() => setIsOpen(!isOpen)}
-                />
+                {isOpen && (
+                    <>
+                        <FolderIcon size={size} className="inline-block" />
+                        <SearchIcon size={size} className="inline-block" />
+                        <BookmarkIcon
+                            size={size}
+                            className="inline-block cursor-pointer"
+                            onClick={() => setIsOpen(!isOpen)}
+                        />
+                    </>
+                )}
             </div>
         </div>
     );

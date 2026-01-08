@@ -1,27 +1,107 @@
-import React from 'react'
+import React from "react";
 
-const EditorTab = ({ tab, isActive, onClick, onClose }) => {
-  return (
-    <div
-      className={`flex min-w-0 h-full items-center py-2 border-r border-gray-700 cursor-pointer group ${
-        isActive ? 'bg-red-500' : 'bg-blue-500'
-      }`}
-      onClick={onClick}
-    >
-      <span className="text-sm text-gray-200 truncate">
-        {tab.file ? tab.file.split('/').pop().replace('.md', '') : 'New Tab'}
-      </span>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onClose(tab.id);
-        }}
-        className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-200 ml-2"
-      >
-        ✕
-      </button>
-    </div>
-  );
+const EditorTab = ({
+    tab,
+    active,
+    onClick,
+    onClose,
+    totalTabs,
+    parentWidth,
+}) => {
+    const upperSize = 180,
+        lowerSize = 10;
+    const width = Math.max(
+        lowerSize,
+        Math.min(upperSize, parentWidth / (totalTabs + 1) - 3)
+    );
+
+    // Curve parameters
+    const curveRadius = 9;
+    const borderWidth = 0.5;
+
+    return (
+        <div
+            className={`relative flex min-w-0 h-full items-center px-2 py-2 cursor-pointer group text-left self-end border-[#e0e0e0] ${
+                tab.id === active
+                    ? "bg-offwhite text-[#5C5C5C] rounded-t-md border-t-[1.5px] border-l-[1.5px] border-r-[1.5px]"
+                    : "bg-transparent text-[#5C5C5C] hover:rounded-md mb-1"
+            } ${tab.id != active - 1 && " border-r-[1.5px]"}`}
+            onClick={onClick}
+            style={{
+                width: `${width}px`,
+                flexShrink: 0,
+            }}
+        >
+            {tab.id === active && (
+                <>
+                    {/* Bottom left outward curve */}
+                    <div
+                        className="absolute pointer-events-none z-50"
+                        style={{
+                            bottom: `1px`,
+                            left: `${-curveRadius}px`,
+                            width: `${curveRadius}px`,
+                            height: `${curveRadius}px`,
+                            background: `radial-gradient(circle at top left, transparent ${
+                                curveRadius - borderWidth
+                            }px, #e0e0e0 ${
+                                curveRadius - borderWidth
+                            }px, #e0e0e0 ${curveRadius}px, transparent ${curveRadius}px), radial-gradient(circle at top left, transparent ${
+                                curveRadius - borderWidth
+                            }px, #FAFAFA ${curveRadius - borderWidth}px)`,
+                        }}
+                    />
+                    {/* Bottom right outward curve */}
+                    <div
+                        className="absolute pointer-events-none z-50"
+                        style={{
+                            bottom: `1px`,
+                            right: `${-curveRadius}px`,
+                            width: `${curveRadius}px`,
+                            height: `${curveRadius}px`,
+                            background: `radial-gradient(circle at top right, transparent ${
+                                curveRadius - borderWidth
+                            }px, #e0e0e0 ${
+                                curveRadius - borderWidth
+                            }px, #e0e0e0 ${curveRadius}px, transparent ${curveRadius}px), radial-gradient(circle at top right, transparent ${
+                                curveRadius - borderWidth
+                            }px, #FAFAFA ${curveRadius - borderWidth}px)`,
+                        }}
+                    />
+                </>
+            )}
+            <div
+                className={`-mt-1 z-50 w-full flex flex-row items-center justify-between pt-1 pl-1 ${
+                    !(tab.id === active) ? "-mb-1" : "mb-0 -ml-[1px]"
+                }`}
+            >
+                <span
+                    className={`relative z-10 text-[12px] ${
+                        tab.id === active ? "text-[#5C5C5C]" : "text-[#acacac]"
+                    } truncate flex-1 mr-1 select-none`}
+                >
+                    {tab.file
+                        ? tab.file.split("/").pop().replace(".md", "")
+                        : "New Tab"}
+                </span>
+                {tab.id === active && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onClose(tab.id);
+                        }}
+                        className={`relative z-10 ${
+                            tab.id === active
+                                ? "opacity-100 hover:bg-black/[0.07] rounded-[3px]"
+                                : "opacity-0 hover:text-black"
+                        } group-hover:opacity-100 text-[#5C5C5C] font-bold flex-shrink-0 text-xs px-1 py-[1px]`}
+                    >
+                        ✕
+                    </button>
+                )}
+            </div>
+        </div>
+    );
 };
 
-export default EditorTab
+export default EditorTab;

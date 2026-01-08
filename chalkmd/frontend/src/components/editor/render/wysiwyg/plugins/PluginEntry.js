@@ -1,0 +1,47 @@
+import { Plugin } from "@tiptap/pm/state";
+import { Decoration, DecorationSet } from "@tiptap/pm/view";
+import boldHandler from "../default/Bold";
+import bulletHandler from "../default/Bullet";
+import checkboxHandler from "../default/Checkbox";
+import headerHandler from "../default/Header";
+import italicHandler from "../default/Italic";
+
+const plugins = (editor) => {
+    return new Plugin({
+        props: {
+            decorations: (state) => {
+                const decorations = [];
+                const { doc, selection } = state;
+                const cursorPos = selection.from;
+
+                doc.descendants((node, pos) => {
+                    if (node.type.name === "paragraph") {
+                        const text = node.textContent;
+                        const nodeStart = pos + 1;
+                        const isActive =
+                            cursorPos > pos && cursorPos < pos + node.nodeSize;
+
+                        // Handle headers
+                        headerHandler(text, decorations, isActive, nodeStart);
+
+                        // Bold **text**
+                        boldHandler(text, decorations, nodeStart, cursorPos);
+
+                        // Italic *text*
+                        italicHandler(text, decorations, nodeStart, cursorPos);
+
+                        // - Bullet lists
+                        bulletHandler(text, decorations, isActive, nodeStart);
+
+                        // Checkboxes - [ ] or - [x]
+                        checkboxHandler(text, decorations, nodeStart, isActive, state, pos, node, editor);
+                    }
+                });
+
+                return DecorationSet.create(doc, decorations);
+            },
+        },
+    });
+};
+
+export default plugins;

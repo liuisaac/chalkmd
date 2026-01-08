@@ -6,9 +6,11 @@ import { useVault } from '../../App';
 import {
     ReadFile
 } from "../../../wailsjs/go/main/App";
+import { useState } from 'react';
 
 const Editor = () => {
     const { files, currentFile, setCurrentFile, setContent } = useVault();
+    const [sidebarWidth, setSidebarWidth] = useState(235);
 
     const handleFileClick = async (file) => {
         if (file.isDir) return;
@@ -27,14 +29,14 @@ const Editor = () => {
     return (
         <TabProvider>
             <div className="h-screen bg-offwhite flex flex-col font-sans overflow-hidden">
-                <EditorTitleBar />
+                <EditorTitleBar sidebarWidth={sidebarWidth} />
                 <div className="flex flex-1 overflow-hidden">
-                    <EditorSidebar files={files} onFileClick={handleFileClick} />
+                    <EditorSidebar files={files} onFileClick={handleFileClick} setSidebarWidth={setSidebarWidth} />
                     <div className="flex-1 pt-10 overflow-y-scroll">
                         {currentFile ? (
                             <EditorEngine />
                         ) : (
-                            <div className="text-gray-400 w-full h-full flex flex-col items-center justify-center">
+                            <div className="text-gray-400 w-full h-full flex flex-col items-center justify-center border-t-[1px] border-[#e0e0e0]">
                                 Select a file to start editing
                             </div>
                         )}
