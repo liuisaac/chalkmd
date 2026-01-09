@@ -26,7 +26,7 @@ const Editor = () => {
 
     return (
         <TabProvider>
-            <div className="h-screen bg-offwhite flex flex-col font-sans overflow-hidden">
+            <div className="h-screen w-screen bg-offwhite flex flex-col font-sans overflow-hidden fixed right-0">
                 <EditorTitleBar sidebarWidth={sidebarWidth} />
                 <div className="flex overflow-hidden m-0 p-0 min-w-0">
                     <EditorSidebar
