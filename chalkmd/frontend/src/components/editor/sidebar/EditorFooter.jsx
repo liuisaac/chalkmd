@@ -6,7 +6,7 @@ const EditorFooter = () => {
         <div className='flex flex-row justify-between items-center gap-5 pl-14 text-sm pt-3'>
             <div className="flex flex-row items-center gap-1">
                 <ChevronsUpDown size={18} className='inline-block'/>
-                <span className="text-black text-[12px]">Vault</span>
+                <span className="text-black text-[12px] select-none">Vault</span>
             </div>
             <div className="flex flex-row items-center gap-3 pr-4">
                 <div className="flex flex-row items-center gap-2">

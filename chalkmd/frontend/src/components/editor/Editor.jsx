@@ -1,12 +1,10 @@
-import { TabProvider } from './TabContext';
+import { TabProvider } from "./TabContext";
 import EditorTitleBar from "./EditorTitleBar";
 import EditorSidebar from "./EditorSidebar";
 import EditorEngine from "./render/EditorEngine";
-import { useVault } from '../../App';
-import {
-    ReadFile
-} from "../../../wailsjs/go/main/App";
-import { useState } from 'react';
+import { useVault } from "../../VaultProvider";
+import { ReadFile } from "../../../wailsjs/go/main/App";
+import { useState } from "react";
 
 const Editor = () => {
     const { files, currentFile, setCurrentFile, setContent } = useVault();
@@ -30,20 +28,35 @@ const Editor = () => {
         <TabProvider>
             <div className="h-screen bg-offwhite flex flex-col font-sans overflow-hidden">
                 <EditorTitleBar sidebarWidth={sidebarWidth} />
-                <div className="flex flex-1 overflow-hidden">
-                    <EditorSidebar files={files} onFileClick={handleFileClick} setSidebarWidth={setSidebarWidth} />
-                    <div className="flex-1 pt-10 overflow-y-scroll">
-                        {currentFile ? (
-                            <EditorEngine />
-                        ) : (
-                            <div className="text-gray-400 w-full h-full flex flex-col items-center justify-center border-t-[1px] border-[#e0e0e0]">
-                                Select a file to start editing
-                            </div>
-                        )}
+                <div className="flex overflow-hidden m-0 p-0 min-w-0">
+                    <EditorSidebar
+                        files={files}
+                        onFileClick={handleFileClick}
+                        setSidebarWidth={setSidebarWidth}
+                    />
+                    <div className="flex-1 pt-10 overflow-y-auto">
+                        {currentFile ? <EditorEngine /> : <EmptyEditor />}
                     </div>
                 </div>
             </div>
         </TabProvider>
+    );
+};
+
+const EmptyEditor = () => {
+    return (
+        <div className="text-[#9164eb] w-full h-full flex flex-col justify-center gap-5 text-light border-t-[1px] border-[#e0e0e0] text-center">
+            <span className="hover:text-[#aa8de4] select-none">
+                Create a new note (Ctrl + N)
+            </span>
+            <span className="hover:text-[#aa8de4] select-none">
+                Go to file (Ctrl + O)
+            </span>
+            <span className="hover:text-[#aa8de4] select-none">
+                See recent files (Ctrl + O)
+            </span>
+            <span className="hover:text-[#aa8de4] select-none">Close</span>
+        </div>
     );
 };
 

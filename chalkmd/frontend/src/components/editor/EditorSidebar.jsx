@@ -13,19 +13,21 @@ const EditorSidebar = ({ files, onFileClick, setSidebarWidth }) => {
     const [isOpen, setIsOpen] = useState(true);
     const sidebarRef = useRef(null);
 
+    // Disable transitions during manual drag to prevent lag
+    const transitionStyle = isResizing ? "none" : "all 300ms cubic-bezier(0.4, 0, 0.2, 1)";
+
     useEffect(() => {
         const handleMouseMove = (e) => {
             if (!isResizing) return;
-            
             const newWidth = e.clientX;
-            
+
             if (newWidth < collapseThreshold) {
                 setIsOpen(false);
                 setWidth(0);
                 setSidebarWidth(0);
                 return;
             }
-            
+
             if (newWidth >= minimumWidth && newWidth <= 600) {
                 setIsOpen(true);
                 setWidth(newWidth);
@@ -33,68 +35,86 @@ const EditorSidebar = ({ files, onFileClick, setSidebarWidth }) => {
             }
         };
 
-        const handleMouseUp = () => {
-            setIsResizing(false);
-        };
+        const handleMouseUp = () => setIsResizing(false);
 
         if (isResizing) {
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-            document.body.style.cursor = 'ew-resize';
-            document.body.style.userSelect = 'none';
+            document.addEventListener("mousemove", handleMouseMove);
+            document.addEventListener("mouseup", handleMouseUp);
+            document.body.style.cursor = "ew-resize";
+            document.body.style.userSelect = "none";
         }
 
         return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+            document.body.style.cursor = "";
+            document.body.style.userSelect = "";
         };
-    }, [isResizing]);
+    }, [isResizing, setSidebarWidth]);
 
     useEffect(() => {
         if (isOpen && width < minimumWidth) {
             setWidth(minimumWidth);
             setSidebarWidth(minimumWidth);
         }
-
         if (!isOpen) {
             setWidth(0);
-            setSidebarWidth(0); // Add this line
+            setSidebarWidth(0);
         }
-    }, [isOpen]);
+    }, [isOpen, setSidebarWidth]);
 
     return (
         <>
-            {/* EditorPinned stays visible even when sidebar is collapsed */}
-            <div 
-                className="fixed top-0 left-0 z-50 border-b-[1px] border-r-[1px] border-[#e0e0e0]"
-                style={{ width: `${Math.max(width, 44)}px` }}
+            <div
+                className="fixed top-0 left-0 z-50 border-b-[1px] border-r-[1px] border-[#e0e0e0] min-w-11"
+                style={{ 
+                    width: `${Math.max(width, 44)}px`,
+                    transition: transitionStyle 
+                }}
             >
                 <EditorPinned isOpen={isOpen} setIsOpen={setIsOpen} />
             </div>
 
-            <div 
+            <div
                 ref={sidebarRef}
-                className="bg-topbar border-r-[1px] border-[#E0E0E0] relative flex flex-col overflow-x-clip h-screen transition-all duration-0"
-                style={{ width: `${width}px`, paddingTop: '40px' }}
+                className="bg-topbar border-r-[1px] border-[#E0E0E0] relative flex flex-col h-screen overflow-hidden"
+                style={{ 
+                    width: `${width}px`,
+                    transition: transitionStyle
+                }}
             >
-                <EditorRibbon isOpen={isOpen} setIsOpen={setIsOpen} />
-                {
-                    isOpen && <FileTreeRibbon />
-                }
-                
-                <div className="flex-1 overflow-y-auto">
-                    <FileTree
-                        files={files}
-                        onFileClick={onFileClick}
-                    />
+                <div 
+                    style={{ 
+                        width: isOpen ? '100%' : '0px',
+                        minWidth: `${minimumWidth}px`, 
+                        height: '100%',
+                        transition: transitionStyle,
+                        opacity: isOpen ? 1 : 0,
+                        filter: isOpen ? "blur(0px)" : "blur(4px)",
+                        transform: isOpen ? "translateX(0px)" : "translateX(-10px)"
+                    }} 
+                    className="flex flex-col"
+                >
+                    <EditorRibbon isOpen={isOpen} />
+
+                    <div style={{ paddingTop: "40px" }} className="flex-1 flex flex-col overflow-hidden">
+                        <FileTreeRibbon />
+                        
+                        {/* ROOT FIX: Added overflow-x-hidden to prevent the 'double' bar and layout jitter */}
+                        <div className="flex-1 overflow-y-auto overflow-x-hidden w-full custom-sidebar-scrollbar text-left">
+                            {/* ROOT FIX: Wrapping FileTree in a flex container forces the browser 
+                                to calculate scroll height accurately from the first pixel. */}
+                            <div className="flex flex-col min-h-full">
+                                <FileTree files={files} onFileClick={onFileClick} />
+                            </div>
+                        </div>
+                        
+                        <EditorFooter />
+                    </div>
                 </div>
-                
-                <EditorFooter />
 
                 <div
-                    className="absolute top-0 right-0 bottom-0 w-1 cursor-col-resize transition-colors z-10"
+                    className="absolute top-0 right-0 bottom-0 w-1 cursor-col-resize z-10"
                     onMouseDown={(e) => {
                         e.preventDefault();
                         setIsResizing(true);

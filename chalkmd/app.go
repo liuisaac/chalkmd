@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 	
+	"github.com/hymkor/trash-go"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -192,7 +193,12 @@ func (a *App) DeleteFile(relativePath string) error {
 		return fmt.Errorf("invalid path: outside vault")
 	}
 	
-	return os.RemoveAll(fullPath)
+	err := trash.Throw(fullPath)
+	if err != nil {
+		return fmt.Errorf("failed to move to trash: %w", err)
+	}
+	
+	return nil
 }
 
 func (a *App) RenameFile(oldPath string, newPath string) error {

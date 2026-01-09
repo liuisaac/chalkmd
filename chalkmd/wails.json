@@ -1,5 +1,4 @@
 {
-  "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "chalkmd",
   "outputfilename": "chalkmd",
   "frontend:install": "npm install",
@@ -7,7 +6,17 @@
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "liuisaac05",
-    "email": "liuisaac05@gmail.com"
+    "name": "",
+    "email": ""
+  },
+  "info": {
+    "companyName": "",
+    "productName": "chalkmd",
+    "productVersion": "1.0.0",
+    "copyright": "",
+    "comments": ""
+  },
+  "windows": {
+    "icon": "appicon.ico"
   }
 }

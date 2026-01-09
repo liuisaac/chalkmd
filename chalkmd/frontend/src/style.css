@@ -75,3 +75,27 @@ h5.heading-with-prefix,
 h6.heading-with-prefix {
     position: relative;
 }
+/* target ONLY the sidebar scroll container */
+.custom-sidebar-scrollbar {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Hide the second scrollbar if it tries to appear on children */
+.custom-sidebar-scrollbar * {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
+}
+.custom-sidebar-scrollbar *::-webkit-scrollbar {
+  display: none !important; /* Chrome/Safari */
+}
+
+/* Re-enable and style ONLY the main one */
+.custom-sidebar-scrollbar::-webkit-scrollbar {
+  display: block !important;
+  width: 5px;
+}
+.custom-sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}

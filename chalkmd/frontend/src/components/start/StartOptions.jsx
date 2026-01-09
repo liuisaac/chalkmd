@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { useVault } from "../../App";
+import { useVault } from "../../VaultProvider";
 
 const OptionCard = ({
     title,

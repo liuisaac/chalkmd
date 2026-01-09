@@ -4,12 +4,12 @@ import {
     BookOpen,
     EllipsisVertical,
 } from "lucide-react";
-import { useVault } from "../../../App";
+import { useVault } from "../../../VaultProvider";
 
 const EditorNoteBar = () => {
     const { currentFile } = useVault();
     return (
-        <div className="bg-offwhite w-full h-12 flex flex-row items-center justify-between text-gray-600 sticky top-0 select-none z-50 font-sans">
+        <div className="bg-offwhite w-full h-12 flex flex-row items-center justify-between text-gray-600 sticky top-0 select-none z-30 font-sans">
             <div className="text-gray-400 flex flex-row items-center justify-center pl-5">
                 <ArrowLeft
                     size={18}
@@ -17,7 +17,7 @@ const EditorNoteBar = () => {
                 />
                 <ArrowRight size={18} className="inline-block cursor-pointer" />
             </div>
-            <div className="text-[14px]">
+            <div className="text-[14px] truncate px-4">
                 {currentFile
                     .replace(/\.[^/.]+$/, "")
                     .split("/")

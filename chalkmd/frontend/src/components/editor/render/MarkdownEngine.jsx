@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { parseMarkdown } from "../lib/parseMarkdown";
-import { useVault } from "../../../App";
+import { useVault } from "../../../VaultProvider";
 
 const MarkdownEngine = ({ content }) => {
     const { currentFile } = useVault();

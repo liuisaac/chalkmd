@@ -25,7 +25,8 @@ const docToText = (editor) => {
     return lines.join('\n');
 };
 
-const editor = ({ content, setContent, updateTabContent }) => {
+// Accept editorProps so the Engine can pass the Arrow Key logic
+const editor = ({ content, setContent, updateTabContent, editorProps = {} }) => {
     return useEditor({
         extensions: [
             Document,
@@ -45,7 +46,10 @@ const editor = ({ content, setContent, updateTabContent }) => {
         ],
         content: textToDoc(content),
         editorProps: {
+            // Merge external props from EditorEngine
+            ...editorProps,
             attributes: {
+                // RESTORED: Your exact original classes
                 class: "max-w-none focus:outline-none min-h-screen p-6",
             },
         },
