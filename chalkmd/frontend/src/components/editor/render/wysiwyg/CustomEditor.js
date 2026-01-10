@@ -4,6 +4,11 @@ import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
 import plugins from "./plugins/PluginEntry";
 
+// nodes
+import BulletItem from "./default/Bullet";
+
+const INDENT_SIZE = 4;
+
 const textToDoc = (text) => {
     const lines = text.split('\n');
     return {
@@ -25,7 +30,6 @@ const docToText = (editor) => {
     return lines.join('\n');
 };
 
-// Accept editorProps so the Engine can pass the Arrow Key logic
 const editor = ({ content, setContent, updateTabContent, editorProps = {} }) => {
     return useEditor({
         extensions: [
@@ -43,6 +47,7 @@ const editor = ({ content, setContent, updateTabContent, editorProps = {} }) => 
                 },
             }),
             Text,
+            BulletItem
         ],
         content: textToDoc(content),
         editorProps: {
