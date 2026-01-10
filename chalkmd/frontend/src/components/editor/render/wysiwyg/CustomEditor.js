@@ -11,12 +11,33 @@ const INDENT_SIZE = 4;
 
 const textToDoc = (text) => {
     const lines = text.split('\n');
+    const content = [];
+    
+    for (const line of lines) {
+        // Check if line is a bullet item
+        const bulletMatch = line.match(/^(\s*)- (.*)$/);
+        if (bulletMatch) {
+            const spaces = bulletMatch[1].length;
+            const indentLevel = Math.floor(spaces / INDENT_SIZE);
+            const text = bulletMatch[2];
+            
+            content.push({
+                type: 'bulletItem',
+                attrs: { indent: indentLevel },
+                content: text ? [{ type: 'text', text }] : []
+            });
+        } else {
+            // Regular paragraph
+            content.push({
+                type: 'paragraph',
+                content: line ? [{ type: 'text', text: line }] : []
+            });
+        }
+    }
+    
     return {
         type: 'doc',
-        content: lines.map(line => ({
-            type: 'paragraph',
-            content: line ? [{ type: 'text', text: line }] : []
-        }))
+        content: content.length > 0 ? content : [{ type: 'paragraph' }]
     };
 };
 
@@ -24,9 +45,18 @@ const docToText = (editor) => {
     if (!editor) return '';
     const { doc } = editor.state;
     const lines = [];
+    
     doc.forEach(node => {
-        lines.push(node.textContent);
+        if (node.type.name === 'bulletItem') {
+            const indent = node.attrs.indent || 0;
+            const spaces = ' '.repeat(indent * INDENT_SIZE);
+            const content = node.textContent;
+            lines.push(`${spaces}- ${content}`);
+        } else {
+            lines.push(node.textContent);
+        }
     });
+    
     return lines.join('\n');
 };
 

@@ -5,6 +5,7 @@ import {
     CreateFolder,
     RenameFile,
     DeleteFile,
+    WriteFile,
 } from "../wailsjs/go/main/App";
 import { useState, useEffect, createContext, useContext } from "react";
 
@@ -36,6 +37,19 @@ export const VaultProvider = ({ children }) => {
                 });
         }
     }, []);
+
+    // Auto-save effect
+    useEffect(() => {
+        if (!currentFile || !vaultPath || content === "") return;
+
+        const timeout = setTimeout(() => {
+            WriteFile(currentFile, content).catch((err) =>
+                console.error("Auto-save failed:", err)
+            );
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+    }, [content, currentFile, vaultPath]);
 
     const loadVaultContents = async () => {
         try {
@@ -75,7 +89,6 @@ export const VaultProvider = ({ children }) => {
             }
 
             await CreateFile(nameToCreate);
-
             await loadVaultContents();
         } catch (error) {
             console.error("Error creating file:", error);
@@ -101,7 +114,6 @@ export const VaultProvider = ({ children }) => {
             }
 
             await CreateFolder(nameToCreate);
-
             await loadVaultContents();
         } catch (error) {
             console.error("Error creating folder:", error);

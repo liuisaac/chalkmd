@@ -49,7 +49,7 @@ export const BulletItem = Node.create({
           contenteditable: 'false',
           style: 'position: absolute; left: -20px; bottom: 12px; user-select: none; pointer-events: none; font-size: 24px; line-height: 0; color: #a0a0a0;',
         },
-        bulletUnicode, // Simple Unicode bullet
+        bulletUnicode,
       ],
       ['span', { 'data-content': 'true' }, 0],
     ];
