@@ -79,9 +79,14 @@ export const VaultProvider = ({ children }) => {
             if (!nameToCreate) {
                 // Check ROOT directory only by looking at path
                 const existingNames = files
-                    .filter(f => !f.isDir && !f.path.includes('/') && !f.path.includes('\\'))
+                    .filter(
+                        (f) =>
+                            !f.isDir &&
+                            !f.path.includes("/") &&
+                            !f.path.includes("\\")
+                    )
                     .map((f) => f.path.toLowerCase());
-                
+
                 if (!existingNames.includes("untitled.md")) {
                     nameToCreate = "Untitled.md";
                 } else {
@@ -95,7 +100,7 @@ export const VaultProvider = ({ children }) => {
 
             const fullPath = await CreateFile(nameToCreate);
             await loadVaultContents();
-            
+
             const relativePath = fullPath.substring(vaultPath.length + 1);
             return relativePath;
         } catch (error) {

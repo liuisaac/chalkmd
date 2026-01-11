@@ -5,7 +5,7 @@ import EditorTabBar from "../editor/tab/EditorTabBar";
 import { useTabContext } from "../../TabProvider";
 
 const EditorTitleBar = ({ sidebarWidth }) => {
-    const { tabs, activeTabId, setActiveTabId, createTab, closeTab } = useTabContext();
+    const { tabs, activeTabId, createTab, closeTab, switchTab } = useTabContext();
     
     return (
         <div
@@ -15,7 +15,7 @@ const EditorTitleBar = ({ sidebarWidth }) => {
             <EditorTabBar 
                 tabs={tabs}
                 activeTabId={activeTabId}
-                onTabClick={setActiveTabId}
+                onTabClick={switchTab}
                 onTabClose={closeTab}
                 onNewTab={createTab}
                 sidebarWidth={sidebarWidth}

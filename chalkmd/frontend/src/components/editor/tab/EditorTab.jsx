@@ -37,6 +37,8 @@ const EditorTab = ({
         if (isActive && currentFile && !isNavigating) {
             pushToHistory(currentFile); // handle tab history push here
             setCurrentContent(currentFile);
+        } else if (isActive && !currentFile && !isNavigating) {
+            setCurrentContent("New Tab")
         }
     }, [currentFile, isActive, isNavigating]);
 

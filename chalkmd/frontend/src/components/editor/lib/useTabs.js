@@ -13,20 +13,24 @@ export const useTabs = () => {
     const activeTab = tabs.find((t) => t.id === activeTabId);
 
     const createTab = useCallback(() => {
-        setNextId((currentNextId) => {
-            setTabs((currentTabs) => {
-                const newTab = {
-                    id: currentNextId,
-                    file: null,
-                    content: "",
-                    history: new History(50),
-                };
-                setActiveTabId(currentNextId);
-                return [...currentTabs, newTab];
-            });
-            return currentNextId + 1;
-        });
-    }, []);
+        const newId = nextId;
+
+        const newTab = {
+            id: newId,
+            file: null,
+            content: "",
+            history: new History(50),
+        };
+
+        setTabs((prev) => [...prev, newTab]);
+        setActiveTabId(newId);
+        setNextId((id) => id + 1);
+        setIsNavigating(true);
+        setCurrentFile(null);
+        setContent("");
+
+        setTimeout(() => setIsNavigating(false), 50);
+    }, [nextId, setCurrentFile, setContent]);
 
     const closeTab = useCallback(
         (tabId) => {
@@ -38,13 +42,21 @@ export const useTabs = () => {
 
                 if (tabId === activeTabId) {
                     const newActiveIndex = Math.max(0, tabIndex - 1);
-                    setActiveTabId(newTabs[newActiveIndex].id);
+                    const nextTab = newTabs[newActiveIndex];
+
+                    setActiveTabId(nextTab.id);
+
+                    setIsNavigating(true);
+                    setCurrentFile(nextTab.file);
+                    setContent(nextTab.content || "");
+
+                    setTimeout(() => setIsNavigating(false), 50);
                 }
 
                 return newTabs;
             });
         },
-        [activeTabId]
+        [activeTabId, setCurrentFile, setContent] // Add dependencies
     );
 
     const updateTabContent = useCallback(
@@ -52,10 +64,6 @@ export const useTabs = () => {
             setTabs((currentTabs) =>
                 currentTabs.map((t) => {
                     if (t.id === activeTabId) {
-                        // REMOVE THIS LINE:
-                        // t.history.push(content);
-
-                        // Only update the state content, NOT the navigation history
                         return { ...t, content };
                     }
                     return t;
@@ -143,6 +151,19 @@ export const useTabs = () => {
         [activeTabId]
     );
 
+    const switchTab = useCallback(
+        (tabId) => {
+            const targetTab = tabs.find((t) => t.id === tabId);
+            if (!targetTab) return;
+            setIsNavigating(true);
+            setActiveTabId(tabId);
+            setCurrentFile(targetTab.file);
+            setContent(targetTab.content);
+            setTimeout(() => setIsNavigating(false), 50);
+        },
+        [tabs, setCurrentFile, setContent]
+    );
+
     const canGoBack = activeTab ? activeTab.history.canGoBack() : false;
     const canGoForward = activeTab ? activeTab.history.canGoForward() : false;
 
@@ -160,5 +181,6 @@ export const useTabs = () => {
         isNavigating,
         canGoBack,
         canGoForward,
+        switchTab,
     };
 };

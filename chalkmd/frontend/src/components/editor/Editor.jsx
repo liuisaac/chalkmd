@@ -6,7 +6,8 @@ import { useVault } from "../../VaultProvider";
 import { useEffect, useState } from "react";
 
 const Editor = () => {
-    const { files, currentFile, setCurrentFile, setContent, readFile } = useVault();
+    const { files, currentFile, setCurrentFile, setContent, readFile } =
+        useVault();
     const { loadFileInTab } = useTabContext();
     const [sidebarWidth, setSidebarWidth] = useState(235);
 
