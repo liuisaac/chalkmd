@@ -8,7 +8,7 @@ const FileTree = ({ files, onFileClick }) => {
     const [menu, setMenu] = useState(null);
     const [editingPath, setEditingPath] = useState(null);
     const treeRef = useRef(null);
-    const { createFile, deleteFile } = useVault();
+    const { deleteFile } = useVault();
 
     const handleContextMenu = (e, path = null) => {
         if (treeRef.current && treeRef.current.contains(e.target)) {

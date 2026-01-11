@@ -8,6 +8,7 @@ import {
 import Start from "./components/start/Start";
 import Editor from "./components/editor/Editor";
 import { VaultProvider, useVault } from "./VaultProvider";
+import { TabProvider } from "./TabProvider";
 
 function App() {
     const testingEditor = false; // Set to false when done testing
@@ -141,7 +142,9 @@ function App() {
 function AppWithProvider() {
     return (
         <VaultProvider>
-            <App />
+            <TabProvider>
+                <App />
+            </TabProvider>
         </VaultProvider>
     );
 }

@@ -1,5 +1,5 @@
-import React, { createContext, useContext } from 'react';
-import { useTabs } from './lib/useTabs';
+import { createContext, useContext } from 'react';
+import { useTabs } from './components/editor/lib/useTabs';
 
 const TabContext = createContext();
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { EditorContent } from "@tiptap/react";
 import { useVault } from "../../../VaultProvider";
-import { useTabContext } from "../TabContext";
+import { useTabContext } from "../../../TabProvider";
 import CustomEditor, { docToText, textToDoc } from "./wysiwyg/CustomEditor";
 import EditorNoteBar from "./EditorNoteBar";
 

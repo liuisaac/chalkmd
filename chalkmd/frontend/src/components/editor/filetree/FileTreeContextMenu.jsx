@@ -15,10 +15,13 @@ import {
     Trash2,
     SquarePenIcon,
 } from "lucide-react";
+import { useVault } from "../../../VaultProvider";
+
 
 const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
     const menuRef = useRef(null);
     const [pos, setPos] = useState({ top: y, left: x, visibility: "hidden" });
+    const { setCurrentFile } = useVault();
 
     const iconSize = 15;
     const itemClass =
@@ -56,6 +59,8 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
     const handleDeleteClick = (e) => {
         e.stopPropagation();
         onDelete();
+        setCurrentFile(null);
+        onClose();
     };
 
     return ReactDOM.createPortal(

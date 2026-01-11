@@ -7,6 +7,9 @@ import plugins from "./plugins/PluginEntry";
 // nodes
 import BulletItem from "./default/Bullet";
 
+// hotkeys
+import { defaultShortcuts } from "./hotkeys/Shortcuts";
+
 const INDENT_SIZE = 4;
 
 const textToDoc = (text) => {
@@ -14,7 +17,6 @@ const textToDoc = (text) => {
     const content = [];
     
     for (const line of lines) {
-        // Check if line is a bullet item
         const bulletMatch = line.match(/^(\s*)- (.*)$/);
         if (bulletMatch) {
             const spaces = bulletMatch[1].length;
@@ -75,16 +77,17 @@ const editor = ({ content, setContent, updateTabContent, editorProps = {} }) => 
                 addProseMirrorPlugins() {
                     return [plugins(this.editor)];
                 },
+                addKeyboardShortcuts() {
+                    return defaultShortcuts(this.editor);
+                },
             }),
             Text,
             BulletItem
         ],
         content: textToDoc(content),
         editorProps: {
-            // Merge external props from EditorEngine
             ...editorProps,
             attributes: {
-                // RESTORED: Your exact original classes
                 class: "max-w-none focus:outline-none min-h-screen p-6",
             },
         },

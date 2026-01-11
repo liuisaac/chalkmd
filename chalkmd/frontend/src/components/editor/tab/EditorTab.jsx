@@ -1,4 +1,6 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { useVault } from "../../../VaultProvider";
+import { useTabContext } from "../../../TabProvider";
 
 const EditorTab = ({
     tab,
@@ -8,21 +10,40 @@ const EditorTab = ({
     totalTabs,
     parentWidth,
 }) => {
+    const { currentFile } = useVault();
+    const { pushToHistory, isNavigating } = useTabContext();
     const upperSize = 180,
         lowerSize = 10;
-    const width = Math.max(
-        lowerSize,
-        Math.min(upperSize, parentWidth / (totalTabs + 1) - 3)
-    );
 
-    // Curve parameters
+    const totalRequiredWidth = totalTabs * upperSize;
+
+    const width =
+        totalRequiredWidth <= parentWidth
+            ? upperSize
+            : Math.max(lowerSize, parentWidth / totalTabs - 2);
+
     const curveRadius = 9;
     const borderWidth = 0.5;
+    const showLabel = width > 30;
+
+    const [isActive, setIsActive] = useState(tab.id === active);
+    const [currentContent, setCurrentContent] = useState("");
+
+    useEffect(() => {
+        setIsActive(tab.id === active);
+    }, [active]);
+
+    useEffect(() => {
+        if (isActive && currentFile && !isNavigating) {
+            pushToHistory(currentFile); // handle tab history push here
+            setCurrentContent(currentFile);
+        }
+    }, [currentFile, isActive, isNavigating]);
 
     return (
         <div
-            className={`relative flex min-w-0 h-full items-center px-2 py-2 cursor-pointer group text-left self-end border-[#e0e0e0] ${
-                tab.id === active
+            className={`relative flex min-w-0 h-full items-center px-2 py-2 group text-left self-end border-[#e0e0e0] ${
+                isActive
                     ? "bg-offwhite text-[#5C5C5C] rounded-t-md border-t-[1.5px] border-l-[1.5px] border-r-[1.5px]"
                     : "bg-transparent text-[#5C5C5C] hover:rounded-md mb-1"
             } ${tab.id != active - 1 && " border-r-[1.5px]"}`}
@@ -30,11 +51,11 @@ const EditorTab = ({
             style={{
                 width: `${width}px`,
                 flexShrink: 0,
+                zIndex: tab.id === active ? 40 : 30,
             }}
         >
-            {tab.id === active && (
+            {isActive && (
                 <>
-                    {/* Bottom left outward curve */}
                     <div
                         className="absolute pointer-events-none z-50"
                         style={{
@@ -51,7 +72,6 @@ const EditorTab = ({
                             }px, #FAFAFA ${curveRadius - borderWidth}px)`,
                         }}
                     />
-                    {/* Bottom right outward curve */}
                     <div
                         className="absolute pointer-events-none z-50"
                         style={{
@@ -71,30 +91,34 @@ const EditorTab = ({
                 </>
             )}
             <div
-                className={`-mt-1 z-50 w-full flex flex-row items-center justify-between pt-1 pl-1 ${
-                    !(tab.id === active) ? "-mb-1" : "mb-0 -ml-[1px]"
-                }`}
+                className={`-mt-1 z-50 w-full flex flex-row items-center justify-between pt-1 ${
+                    !isActive ? "-mb-1" : "mb-0 -ml-[1px]"
+                } ${showLabel ? "pl-1" : ""}`}
             >
-                <span
-                    className={`relative z-10 text-[12px] ${
-                        tab.id === active ? "text-[#5C5C5C]" : "text-[#acacac]"
-                    } truncate flex-1 mr-1 select-none`}
-                >
-                    {tab.file
-                        ? tab.file.split("/").pop().replace(".md", "")
-                        : "New Tab"}
-                </span>
-                {tab.id === active && (
+                {showLabel && (
+                    <span
+                        className={`relative z-10 text-[12px] ${
+                            isActive
+                                ? "text-[#5C5C5C]"
+                                : "text-[#acacac]"
+                        } truncate flex-1 mr-1 select-none`}
+                    >
+                        {currentContent
+                            ? currentContent.split("/").pop().replace(".md", "")
+                            : "New Tab"}
+                    </span>
+                )}
+                {isActive && (
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
                             onClose(tab.id);
                         }}
                         className={`relative z-10 ${
-                            tab.id === active
+                            isActive
                                 ? "opacity-100 hover:bg-black/[0.07] rounded-[3px]"
                                 : "opacity-0 hover:text-black"
-                        } group-hover:opacity-100 text-[#5C5C5C] font-bold flex-shrink-0 text-xs px-1 py-[1px]`}
+                        } group-hover:opacity-100 text-[#5C5C5C] font-bold flex-shrink-0 text-xs px-1 py-[1px] select-none cursor-default`}
                     >
                         ✕
                     </button>

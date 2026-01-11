@@ -2,7 +2,7 @@ import Maximize from "../ui/Maximize";
 import Minimize from "../ui/Minimize";
 import Exit from "../ui/Exit";
 import EditorTabBar from "../editor/tab/EditorTabBar";
-import { useTabContext } from "./TabContext";
+import { useTabContext } from "../../TabProvider";
 
 const EditorTitleBar = ({ sidebarWidth }) => {
     const { tabs, activeTabId, setActiveTabId, createTab, closeTab } = useTabContext();
@@ -20,7 +20,7 @@ const EditorTitleBar = ({ sidebarWidth }) => {
                 onNewTab={createTab}
                 sidebarWidth={sidebarWidth}
             />
-            <div className="flex-1"/>
+            <div className="w-full min-w-0"/>
             <div
                 className="h-full flex items-center justify-center gap-2 rounded-sm"
                 style={{ "--wails-draggable": "no-drag" }}

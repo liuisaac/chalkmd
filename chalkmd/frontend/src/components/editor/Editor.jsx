@@ -1,13 +1,13 @@
-import { TabProvider } from "./TabContext";
+import { useTabContext } from "../../TabProvider";
 import EditorTitleBar from "./EditorTitleBar";
 import EditorSidebar from "./EditorSidebar";
 import EditorEngine from "./render/EditorEngine";
 import { useVault } from "../../VaultProvider";
-import { ReadFile } from "../../../wailsjs/go/main/App";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Editor = () => {
-    const { files, currentFile, setCurrentFile, setContent } = useVault();
+    const { files, currentFile, setCurrentFile, setContent, readFile } = useVault();
+    const { loadFileInTab } = useTabContext();
     const [sidebarWidth, setSidebarWidth] = useState(235);
 
     const handleFileClick = async (file) => {
@@ -17,29 +17,38 @@ const Editor = () => {
 
         try {
             setCurrentFile(file.path);
-            const fileContent = await ReadFile(file.path);
+            const fileContent = await readFile(file.path);
             setContent(fileContent);
+            loadFileInTab(file.path, fileContent);
         } catch (error) {
             console.error("Error loading file:", error);
         }
     };
 
+    useEffect(() => {
+        if (currentFile) {
+            const loadFileContent = async () => {
+                const fileContent = await readFile(currentFile);
+                setContent(fileContent);
+            };
+            loadFileContent();
+        }
+    }, [currentFile]);
+
     return (
-        <TabProvider>
-            <div className="h-screen w-screen bg-offwhite flex flex-col font-sans overflow-hidden fixed right-0">
-                <EditorTitleBar sidebarWidth={sidebarWidth} />
-                <div className="flex overflow-hidden m-0 p-0 min-w-0">
-                    <EditorSidebar
-                        files={files}
-                        onFileClick={handleFileClick}
-                        setSidebarWidth={setSidebarWidth}
-                    />
-                    <div className="flex-1 pt-10 overflow-y-auto">
-                        {currentFile ? <EditorEngine /> : <EmptyEditor />}
-                    </div>
+        <div className="h-screen w-screen bg-offwhite flex flex-col font-sans overflow-hidden fixed right-0">
+            <EditorTitleBar sidebarWidth={sidebarWidth} />
+            <div className="flex overflow-hidden m-0 p-0 min-w-0">
+                <EditorSidebar
+                    files={files}
+                    onFileClick={handleFileClick}
+                    setSidebarWidth={setSidebarWidth}
+                />
+                <div className="flex-1 pt-10 overflow-y-auto">
+                    {currentFile ? <EditorEngine /> : <EmptyEditor />}
                 </div>
             </div>
-        </TabProvider>
+        </div>
     );
 };
 

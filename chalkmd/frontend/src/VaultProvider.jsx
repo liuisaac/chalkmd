@@ -6,6 +6,7 @@ import {
     RenameFile,
     DeleteFile,
     WriteFile,
+    ReadFile,
 } from "../wailsjs/go/main/App";
 import { useState, useEffect, createContext, useContext } from "react";
 
@@ -76,20 +77,27 @@ export const VaultProvider = ({ children }) => {
             let nameToCreate = fileName;
 
             if (!nameToCreate) {
-                const existingNames = files.map((f) => f.name.toLowerCase());
-                if (!existingNames.includes("Untitled.md")) {
+                // Check ROOT directory only by looking at path
+                const existingNames = files
+                    .filter(f => !f.isDir && !f.path.includes('/') && !f.path.includes('\\'))
+                    .map((f) => f.path.toLowerCase());
+                
+                if (!existingNames.includes("untitled.md")) {
                     nameToCreate = "Untitled.md";
                 } else {
                     let counter = 1;
-                    while (existingNames.includes(`Untitled ${counter}.md`)) {
+                    while (existingNames.includes(`untitled ${counter}.md`)) {
                         counter++;
                     }
                     nameToCreate = `Untitled ${counter}.md`;
                 }
             }
 
-            await CreateFile(nameToCreate);
+            const fullPath = await CreateFile(nameToCreate);
             await loadVaultContents();
+            
+            const relativePath = fullPath.substring(vaultPath.length + 1);
+            return relativePath;
         } catch (error) {
             console.error("Error creating file:", error);
             throw error;
@@ -141,6 +149,16 @@ export const VaultProvider = ({ children }) => {
         }
     };
 
+    const readFile = async (path) => {
+        try {
+            const result = await ReadFile(path);
+            return result;
+        } catch (err) {
+            console.error("Failed to read file:", err);
+            throw err;
+        }
+    };
+
     const value = {
         vaultPath,
         setVaultPath,
@@ -158,6 +176,7 @@ export const VaultProvider = ({ children }) => {
         createFolder,
         renameFile,
         deleteFile,
+        readFile,
     };
 
     return (

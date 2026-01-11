@@ -1,55 +1,164 @@
-import React from 'react';
-
+import React, { useCallback } from "react";
+import History from "../tab/history";
+import { useVault } from "../../../VaultProvider";
 export const useTabs = () => {
-  const [tabs, setTabs] = React.useState([
-    { id: 1, file: null, content: '' }
-  ]);
-  const [activeTabId, setActiveTabId] = React.useState(1);
-  const [nextId, setNextId] = React.useState(2);
+    const { setCurrentFile, setContent, readFile } = useVault();
+    const [tabs, setTabs] = React.useState([
+        { id: 1, file: null, content: "", history: new History(50) },
+    ]);
+    const [activeTabId, setActiveTabId] = React.useState(1);
+    const [nextId, setNextId] = React.useState(2);
+    const [isNavigating, setIsNavigating] = React.useState(false);
 
-  const activeTab = tabs.find(t => t.id === activeTabId);
+    const activeTab = tabs.find((t) => t.id === activeTabId);
 
-  const createTab = () => {
-    const newTab = { id: nextId, file: null, content: '' };
-    setTabs([...tabs, newTab]);
-    setActiveTabId(nextId);
-    setNextId(nextId + 1);
-  };
+    const createTab = useCallback(() => {
+        setNextId((currentNextId) => {
+            setTabs((currentTabs) => {
+                const newTab = {
+                    id: currentNextId,
+                    file: null,
+                    content: "",
+                    history: new History(50),
+                };
+                setActiveTabId(currentNextId);
+                return [...currentTabs, newTab];
+            });
+            return currentNextId + 1;
+        });
+    }, []);
 
-  const closeTab = (tabId) => {
-    if (tabs.length === 1) return; // Always keep at least one tab
-    
-    const tabIndex = tabs.findIndex(t => t.id === tabId);
-    const newTabs = tabs.filter(t => t.id !== tabId);
-    setTabs(newTabs);
+    const closeTab = useCallback(
+        (tabId) => {
+            setTabs((currentTabs) => {
+                if (currentTabs.length === 1) return currentTabs;
 
-    // Switch to adjacent tab if closing active tab
-    if (tabId === activeTabId) {
-      const newActiveIndex = Math.max(0, tabIndex - 1);
-      setActiveTabId(newTabs[newActiveIndex].id);
-    }
-  };
+                const tabIndex = currentTabs.findIndex((t) => t.id === tabId);
+                const newTabs = currentTabs.filter((t) => t.id !== tabId);
 
-  const updateTabContent = (content) => {
-    setTabs(tabs.map(t => 
-      t.id === activeTabId ? { ...t, content } : t
-    ));
-  };
+                if (tabId === activeTabId) {
+                    const newActiveIndex = Math.max(0, tabIndex - 1);
+                    setActiveTabId(newTabs[newActiveIndex].id);
+                }
 
-  const loadFileInTab = (filePath, fileContent) => {
-    setTabs(tabs.map(t => 
-      t.id === activeTabId ? { ...t, file: filePath, content: fileContent } : t
-    ));
-  };
+                return newTabs;
+            });
+        },
+        [activeTabId]
+    );
 
-  return {
-    tabs,
-    activeTab,
-    activeTabId,
-    createTab,
-    closeTab,
-    setActiveTabId,
-    updateTabContent,
-    loadFileInTab
-  };
+    const updateTabContent = useCallback(
+        (content) => {
+            setTabs((currentTabs) =>
+                currentTabs.map((t) => {
+                    if (t.id === activeTabId) {
+                        // REMOVE THIS LINE:
+                        // t.history.push(content);
+
+                        // Only update the state content, NOT the navigation history
+                        return { ...t, content };
+                    }
+                    return t;
+                })
+            );
+        },
+        [activeTabId]
+    );
+
+    const loadFileInTab = useCallback(
+        (filePath, fileContent) => {
+            setTabs((currentTabs) => {
+                return currentTabs.map((t) => {
+                    if (t.id === activeTabId) {
+                        t.history.push(filePath);
+                        return { ...t, file: filePath, content: fileContent };
+                    }
+                    return t;
+                });
+            });
+        },
+        [activeTabId]
+    );
+
+    const navigateHistory = useCallback(
+        async (direction) => {
+            if (!activeTab || isNavigating) return;
+
+            // 1. Get the file from history BEFORE updating state
+            const fileToNavigateTo =
+                direction === "forward"
+                    ? activeTab.history.forward()
+                    : activeTab.history.backward();
+
+            console.log(`Target file from history:`, fileToNavigateTo);
+
+            if (!fileToNavigateTo) {
+                console.log("No further history in this direction");
+                return;
+            }
+
+            setIsNavigating(true);
+
+            try {
+                // 2. Update the tabs state to reflect the new file for this tab
+                setTabs((currentTabs) =>
+                    currentTabs.map((t) =>
+                        t.id === activeTabId
+                            ? { ...t, file: fileToNavigateTo }
+                            : t
+                    )
+                );
+
+                // 3. Update the global vault/editor state
+                console.log("Reading file content for:", fileToNavigateTo);
+                const fileContent = await readFile(fileToNavigateTo);
+
+                setCurrentFile(fileToNavigateTo);
+                setContent(fileContent);
+
+                console.log("Navigation complete");
+            } catch (error) {
+                console.error("Error during navigation:", error);
+            } finally {
+                // Small timeout prevents "double-pushing" the same file
+                // back into history while the editor is loading
+                setTimeout(() => setIsNavigating(false), 100);
+            }
+        },
+        [activeTabId, activeTab, isNavigating]
+    );
+
+    const pushToHistory = useCallback(
+        (filePath) => {
+            setTabs((currentTabs) =>
+                currentTabs.map((t) => {
+                    if (t.id === activeTabId) {
+                        t.history.push(filePath);
+                        return { ...t };
+                    }
+                    return t;
+                })
+            );
+        },
+        [activeTabId]
+    );
+
+    const canGoBack = activeTab ? activeTab.history.canGoBack() : false;
+    const canGoForward = activeTab ? activeTab.history.canGoForward() : false;
+
+    return {
+        tabs,
+        activeTab,
+        activeTabId,
+        createTab,
+        closeTab,
+        setActiveTabId,
+        updateTabContent,
+        loadFileInTab,
+        pushToHistory,
+        navigateHistory,
+        isNavigating,
+        canGoBack,
+        canGoForward,
+    };
 };

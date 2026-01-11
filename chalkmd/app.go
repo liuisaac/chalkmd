@@ -141,31 +141,31 @@ func (a *App) WriteFile(relativePath string, content string) error {
 	return nil
 }
 
-func (a *App) CreateFile(relativePath string) error {
+func (a *App) CreateFile(relativePath string) (string, error) {
 	if a.currentVault == "" {
-		return fmt.Errorf("no vault opened")
+		return "", fmt.Errorf("no vault opened")
 	}
 	
 	fullPath := filepath.Join(a.currentVault, relativePath)
 	
 	if !strings.HasPrefix(fullPath, a.currentVault) {
-		return fmt.Errorf("invalid path: outside vault")
+		return "", fmt.Errorf("invalid path: outside vault")
 	}
-	
+
 	if !strings.HasSuffix(fullPath, ".md") {
 		fullPath += ".md"
 	}
 	
 	dir := filepath.Dir(fullPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
+		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
 	
 	if err := os.WriteFile(fullPath, []byte(""), 0644); err != nil {
-		return err
+		return "", fmt.Errorf("failed to write file: %w", err)
 	}
-	
-	return nil
+
+	return fullPath, nil
 }
 
 func (a *App) CreateFolder(relativePath string) error {
