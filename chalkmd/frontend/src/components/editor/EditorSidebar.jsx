@@ -13,7 +13,6 @@ const EditorSidebar = ({ files, onFileClick, setSidebarWidth }) => {
     const [isOpen, setIsOpen] = useState(true);
     const sidebarRef = useRef(null);
 
-    // Disable transitions during manual drag to prevent lag
     const transitionStyle = isResizing ? "none" : "all 300ms cubic-bezier(0.4, 0, 0.2, 1)";
 
     useEffect(() => {
@@ -100,10 +99,7 @@ const EditorSidebar = ({ files, onFileClick, setSidebarWidth }) => {
                     <div style={{ paddingTop: "40px" }} className="flex-1 flex flex-col overflow-hidden">
                         <FileTreeRibbon />
                         
-                        {/* ROOT FIX: Added overflow-x-hidden to prevent the 'double' bar and layout jitter */}
                         <div className="flex-1 overflow-y-auto overflow-x-hidden w-full custom-sidebar-scrollbar text-left">
-                            {/* ROOT FIX: Wrapping FileTree in a flex container forces the browser 
-                                to calculate scroll height accurately from the first pixel. */}
                             <div className="flex flex-col min-h-full">
                                 <FileTree files={files} onFileClick={onFileClick} />
                             </div>

@@ -10,7 +10,6 @@ export const useTabs = () => {
             file: null, 
             content: "", 
             history: new History(50),
-            // NEW: Store editor state per tab
             editorState: null 
         },
     ]);
@@ -82,7 +81,6 @@ export const useTabs = () => {
         [activeTabId]
     );
 
-    // NEW: Save editor state for current tab
     const saveEditorState = useCallback(
         (editorState) => {
             setTabs((currentTabs) =>
@@ -97,7 +95,6 @@ export const useTabs = () => {
         [activeTabId]
     );
 
-    // NEW: Get editor state for current tab
     const getEditorState = useCallback(() => {
         const tab = tabs.find((t) => t.id === activeTabId);
         return tab?.editorState || null;
@@ -113,7 +110,7 @@ export const useTabs = () => {
                             ...t, 
                             file: filePath, 
                             content: fileContent,
-                            editorState: null // Clear editor state for new file
+                            editorState: null
                         };
                     }
                     return t;
@@ -212,7 +209,7 @@ export const useTabs = () => {
         canGoBack,
         canGoForward,
         switchTab,
-        saveEditorState, // NEW
-        getEditorState,  // NEW
+        saveEditorState,
+        getEditorState,
     };
 };

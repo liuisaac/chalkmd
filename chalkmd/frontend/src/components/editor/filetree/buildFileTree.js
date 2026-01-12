@@ -44,11 +44,9 @@ export const buildFileTree = (files) => {
             if (a.isDir && !b.isDir) return -1;
             if (!a.isDir && b.isDir) return 1;
             
-            // Custom sort: "x" before "x 1", "x 1" before "x 2", etc.
             const nameA = a.name;
             const nameB = b.name;
             
-            // Extract base name and number (e.g., "Untitled 1.md" -> base: "Untitled", num: 1, ext: ".md")
             const parse = (name) => {
                 const match = name.match(/^(.+?)( \d+)?(\.\w+)?$/);
                 if (match) {
@@ -64,7 +62,6 @@ export const buildFileTree = (files) => {
             const parsedA = parse(nameA);
             const parsedB = parse(nameB);
             
-            // If same base and extension, sort by number (null before numbers)
             if (parsedA.base === parsedB.base && parsedA.ext === parsedB.ext) {
                 if (parsedA.num === null && parsedB.num !== null) return -1;
                 if (parsedA.num !== null && parsedB.num === null) return 1;

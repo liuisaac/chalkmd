@@ -11,7 +11,6 @@ const boldHandler = (text, decorations, nodeStart, cursorPos) => {
         const inRange = cursorPos >= start && cursorPos <= end;
 
         if (!inRange) {
-            // Hide ** markers
             decorations.push(
                 Decoration.inline(start, contentStart, {
                     style: "font-size: 0; width: 0;",
@@ -23,7 +22,6 @@ const boldHandler = (text, decorations, nodeStart, cursorPos) => {
                 })
             );
         } else {
-            // Gray out markers
             decorations.push(
                 Decoration.inline(start, contentStart, {
                     style: "color: #999;",
@@ -36,7 +34,6 @@ const boldHandler = (text, decorations, nodeStart, cursorPos) => {
             );
         }
 
-        // Make content bold
         decorations.push(
             Decoration.inline(contentStart, contentEnd, {
                 style: "font-weight: bold;",

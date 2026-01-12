@@ -11,6 +11,13 @@ import { HistoryManager } from "../../stores/HistoryManager";
 const INDENT_SIZE = 4;
 
 const textToDoc = (text) => {
+    if (typeof text !== 'string' || !text) {
+        return {
+            type: "doc",
+            content: [{ type: "paragraph" }],
+        };
+    }
+
     const lines = text.split("\n");
     const content = [];
     for (const line of lines) {
@@ -18,11 +25,11 @@ const textToDoc = (text) => {
         if (bulletMatch) {
             const spaces = bulletMatch[1].length;
             const indentLevel = Math.floor(spaces / INDENT_SIZE);
-            const text = bulletMatch[2];
+            const itemText = bulletMatch[2];
             content.push({
                 type: "bulletItem",
                 attrs: { indent: indentLevel },
-                content: text ? [{ type: "text", text }] : [],
+                content: itemText ? [{ type: "text", text: itemText }] : [],
             });
         } else {
             content.push({
@@ -38,7 +45,8 @@ const textToDoc = (text) => {
 };
 
 const docToText = (editor) => {
-    if (!editor || editor.isDestroyed) return "";
+    if (!editor || editor.isDestroyed || !editor.state) return "";
+    
     const { doc } = editor.state;
     const lines = [];
     doc.forEach((node) => {

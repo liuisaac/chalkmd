@@ -1,9 +1,8 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 
-// Constant for easy adjustment
-const INDENT_SIZE = 4; // spaces per indent level
+const INDENT_SIZE = 4;
 
-const bulletUnicode = '•'; // Simple Unicode bullet
+const bulletUnicode = '•';
 
 export const BulletItem = Node.create({
   name: 'bulletItem',
@@ -108,13 +107,11 @@ export const BulletItem = Node.create({
             if (bulletNode.type.name === 'bulletItem') {
               const currentIndent = bulletNode.attrs.indent || 0;
               
-              // If bullet is empty, convert to paragraph
               if (bulletNode.content.size === 0) {
                 tr.setNodeMarkup($from.before($from.depth), state.schema.nodes.paragraph);
                 return true;
               }
               
-              // Create new bullet item with same indent
               const pos = $from.after($from.depth);
               const newBullet = state.schema.nodes.bulletItem.create({ indent: currentIndent });
               tr.insert(pos, newBullet);
@@ -132,7 +129,6 @@ export const BulletItem = Node.create({
           return this.editor.commands.command(({ tr, state }) => {
             const { $from } = state.selection;
             
-            // Only trigger at start of content
             if ($from.parentOffset !== 0) return false;
             
             const bulletNode = $from.node($from.depth);
@@ -141,13 +137,11 @@ export const BulletItem = Node.create({
               const currentIndent = bulletNode.attrs.indent || 0;
               
               if (currentIndent > 0) {
-                // Outdent
                 tr.setNodeMarkup($from.before($from.depth), null, {
                   ...bulletNode.attrs,
                   indent: currentIndent - 1,
                 });
               } else {
-                // Convert to paragraph
                 tr.setNodeMarkup($from.before($from.depth), state.schema.nodes.paragraph);
               }
               return true;
@@ -160,7 +154,6 @@ export const BulletItem = Node.create({
     };
   },
 
-  // Markdown tokenizer to recognize "- " syntax with indentation
   markdownTokenizer: {
     name: 'bullet_item',
     level: 'block',
@@ -187,7 +180,6 @@ export const BulletItem = Node.create({
     },
   },
 
-  // Parse markdown token to TipTap node
   parseMarkdown: (token, helpers) => {
     const content = helpers.parseInline(token.tokens || []);
     
@@ -200,7 +192,6 @@ export const BulletItem = Node.create({
     };
   },
 
-  // Render TipTap node back to markdown
   renderMarkdown: (node, helpers, context) => {
     const indent = node.attrs?.indent || 0;
     const spaces = ' '.repeat(indent * INDENT_SIZE);
@@ -221,14 +212,12 @@ export const BulletItem = Node.create({
           const $start = state.doc.resolve(range.from);
           const nodeStart = $start.before();
           
-          // Replace the entire paragraph with a bulletItem
           const bulletNode = state.schema.nodes.bulletItem.create({
             indent: indentLevel,
           });
           
           tr.replaceWith(nodeStart, $start.after(), bulletNode);
           
-          // Set cursor inside the new bullet
           const newPos = nodeStart + 1;
           tr.setSelection(state.selection.constructor.near(tr.doc.resolve(newPos)));
           

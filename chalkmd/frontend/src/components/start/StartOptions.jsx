@@ -127,7 +127,7 @@ const StartOptions = () => {
 
     const handleOpenVault = async () => {
         try {
-            const { SelectVaultFolder, OpenVault } = await import(
+            const { SelectVaultFolder } = await import(
                 "../../../wailsjs/go/main/App"
             );
             const path = await SelectVaultFolder();

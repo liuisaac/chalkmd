@@ -8,7 +8,6 @@ const defaultShortcuts = (editor) => {
                 editor.commands.insertContentAt({ from, to }, `**${text}**`);
             } else {
                 editor.commands.insertContent("****");
-                // Move cursor between the asterisks
                 const pos = editor.state.selection.from - 2;
                 editor.commands.setTextSelection(pos);
             }

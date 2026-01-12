@@ -6,7 +6,6 @@ export default class History {
   }
 
   push(item) {
-    // DON'T push if the item is the same as the current one
     if (this.getCurrent() === item) return;
 
     this.items = this.items.slice(0, this.index + 1);
@@ -45,7 +44,6 @@ export default class History {
     return null;
   }
 
-  // In History.js forward() method:
   forward() {
     console.log('forward() called, current index:', this.index, 'items:', this.items);
     if (this.canGoForward()) {

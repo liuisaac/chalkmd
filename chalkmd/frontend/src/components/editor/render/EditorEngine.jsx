@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { EditorContent } from "@tiptap/react";
 import { useVault } from "../../../VaultProvider";
 import { useTabContext } from "../../../TabProvider";
-import CustomEditor from "./wysiwyg/CustomEditor";
+import CustomEditor, { docToText, textToDoc } from "./wysiwyg/CustomEditor";
 import EditorNoteBar from "./EditorNoteBar";
 import { HistoryManager } from "../stores/HistoryManager";
 
@@ -13,9 +13,9 @@ const EditorEngine = () => {
     const [title, setTitle] = useState("");
     const lastSavedFileRef = useRef(currentFile);
 
-    const editor = CustomEditor({ 
-        content, 
-        setContent, 
+    const editor = CustomEditor({
+        content,
+        setContent,
         updateTabContent,
         filePath: currentFile,
         editorProps: {
@@ -28,8 +28,8 @@ const EditorEngine = () => {
                     }
                 }
                 return false;
-            }
-        }
+            },
+        },
     });
 
     useEffect(() => {
@@ -42,25 +42,42 @@ const EditorEngine = () => {
         handleUnload();
         lastSavedFileRef.current = currentFile;
 
-        return () => handleUnload();
+        return () => {
+            handleUnload(currentFile); 
+        };
     }, [currentFile, editor]);
 
     useEffect(() => {
+        if (editor && content !== docToText(editor)) {
+            editor.commands.setContent(textToDoc(content), false);
+        }
+    }, [content, editor]);
+
+    useEffect(() => {
         if (currentFile) {
-            const fileName = currentFile.replace(/\.[^/.]+$/, "").split("/").pop();
+            const fileName = currentFile
+                .replace(/\.[^/.]+$/, "")
+                .split("/")
+                .pop();
             setTitle(fileName);
         }
     }, [currentFile]);
 
     const submitTitleRename = async () => {
         const trimmedTitle = title.trim();
-        const currentFileName = currentFile.replace(/\.[^/.]+$/, "").split("/").pop();
+        const currentFileName = currentFile
+            .replace(/\.[^/.]+$/, "")
+            .split("/")
+            .pop();
         if (trimmedTitle && trimmedTitle !== currentFileName) {
             try {
-                const parentPath = currentFile.substring(0, currentFile.lastIndexOf("/"));
-                const extension = currentFile.split('.').pop();
-                const newPath = parentPath 
-                    ? `${parentPath}/${trimmedTitle}.${extension}` 
+                const parentPath = currentFile.substring(
+                    0,
+                    currentFile.lastIndexOf("/")
+                );
+                const extension = currentFile.split(".").pop();
+                const newPath = parentPath
+                    ? `${parentPath}/${trimmedTitle}.${extension}`
                     : `${trimmedTitle}.${extension}`;
                 await renameFile(currentFile, newPath);
             } catch (err) {
@@ -73,7 +90,7 @@ const EditorEngine = () => {
         if (e.key === "Enter" || e.key === "ArrowDown") {
             e.preventDefault();
             if (e.key === "Enter") e.target.blur();
-            editor?.commands.focus('start');
+            editor?.commands.focus("start");
         }
     };
 

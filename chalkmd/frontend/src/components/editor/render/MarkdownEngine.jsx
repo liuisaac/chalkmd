@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { parseMarkdown } from "../lib/parseMarkdown";
 import { useVault } from "../../../VaultProvider";
 

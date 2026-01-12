@@ -35,7 +35,7 @@ const EditorTab = ({
 
     useEffect(() => {
         if (isActive && currentFile && !isNavigating) {
-            pushToHistory(currentFile); // handle tab history push here
+            pushToHistory(currentFile);
             setCurrentContent(currentFile);
         } else if (isActive && !currentFile && !isNavigating) {
             setCurrentContent("New Tab")

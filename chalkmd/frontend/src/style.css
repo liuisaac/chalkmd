@@ -74,7 +74,6 @@ body {
     color: #999;
 }
 
-/* Style the # symbols at the start of headings */
 h1.heading-with-prefix,
 h2.heading-with-prefix,
 h3.heading-with-prefix,
@@ -83,13 +82,11 @@ h5.heading-with-prefix,
 h6.heading-with-prefix {
     position: relative;
 }
-/* target ONLY the sidebar scroll container */
 .custom-sidebar-scrollbar {
   overflow-y: auto !important;
   overflow-x: hidden !important;
 }
 
-/* Hide the second scrollbar if it tries to appear on children */
 .custom-sidebar-scrollbar * {
   scrollbar-width: none !important; /* Firefox */
   -ms-overflow-style: none !important; /* IE/Edge */
@@ -98,7 +95,6 @@ h6.heading-with-prefix {
   display: none !important; /* Chrome/Safari */
 }
 
-/* Re-enable and style ONLY the main one */
 .custom-sidebar-scrollbar::-webkit-scrollbar {
   display: block !important;
   width: 5px;

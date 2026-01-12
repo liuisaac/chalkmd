@@ -3,25 +3,20 @@ export const parseMarkdown = (text) => {
 
     let html = text;
 
-    // Code blocks FIRST (so they don't get processed by other rules)
     html = html.replace(/```(\w+)?\n([\s\S]*?)```/gim, (match, lang, code) => {
         return `<pre class="bg-gray-800 text-gray-100 p-4 rounded my-3 overflow-x-auto"><code class="text-sm font-mono">${code.trim()}</code></pre>`;
     });
 
-    // Headers
     html = html.replace(/^#### (.*$)/gim, '<h4 class="text-lg font-semibold mt-6">$1</h4>');
     html = html.replace(/^### (.*$)/gim, '<h3 class="text-2xl font-semibold mt-5 mb-2">$1</h3>');
     html = html.replace(/^## (.*$)/gim, '<h2 class="text-3xl font-bold mt-6 mb-3">$1</h2>');
     html = html.replace(/^# (.*$)/gim, '<h1 class="text-4xl font-bold mt-6 mb-3">$1</h1>');
 
-    // Bold and italic (before lists so they work inside list items)
     html = html.replace(/\*\*(.*?)\*\*/gim, '<strong class="font-semibold">$1</strong>');
     html = html.replace(/\*(.*?)\*/gim, '<em class="italic">$1</em>');
 
-    // Inline code
     html = html.replace(/`([^`]+)`/gim, '<code class="bg-gray-200 text-gray-900 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>');
 
-    // Lists - process line by line
     const lines = html.split("\n");
     let inList = false;
     let result = [];

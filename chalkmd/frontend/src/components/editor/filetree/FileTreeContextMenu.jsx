@@ -84,7 +84,6 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
                     opacity: pos.visibility === "visible" ? 1 : 0 
                 }}
             >
-                {/* Section 1: Creation */}
                 <div className={itemClass}>
                     <SquarePenIcon size={iconSize} className="text-gray-500" />
                     <span className={`${labelClass}`}>New note</span>
@@ -104,7 +103,6 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
 
                 <div className={dividerClass} />
 
-                {/* Section 2: Actions */}
                 <div className={itemClass}>
                     <Copy size={iconSize} className="text-gray-500" />
                     <span className={`${labelClass}`}>Make a copy</span>
@@ -124,7 +122,6 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
 
                 <div className={dividerClass} />
 
-                {/* Section 3: Paths */}
                 <div className={itemClass}>
                     <Copy size={iconSize} className="text-gray-500" />
                     <span className={`${labelClass}`}>Copy path</span>
@@ -136,7 +133,6 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
 
                 <div className={dividerClass} />
 
-                {/* Section 4: System */}
                 <div className={itemClass}>
                     <ExternalLink size={iconSize} className="text-gray-500" />
                     <span className={`${labelClass}`}>Show in system explorer</span>
@@ -144,7 +140,6 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
 
                 <div className={dividerClass} />
 
-                {/* Section 5: Specials */}
                 <div className={itemClass}>
                     <PencilRuler size={iconSize} className="text-gray-500" />
                     <span className={`${labelClass}`}>Create new drawing</span>
@@ -156,7 +151,6 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
 
                 <div className={dividerClass} />
 
-                {/* Section 6: Modify/Delete */}
                 <div className={itemClass} onClick={handleRenameClick}>
                     <Pencil size={iconSize} className="text-gray-500" />
                     <span className={`${labelClass}`}>Rename...</span>

@@ -119,7 +119,7 @@ function App() {
         }
     }, [content]);
 
-    // Auto-save
+    // auto-save
     useEffect(() => {
         if (!currentFile || !vaultPath) return;
 

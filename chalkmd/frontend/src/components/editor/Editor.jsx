@@ -15,6 +15,7 @@ const Editor = () => {
         if (file.isDir) return;
 
         console.log("File clicked:", file);
+        setContent(null);
 
         try {
             setCurrentFile(file.path);
