@@ -46,7 +46,7 @@ export const BulletItem = Node.create({
         'span',
         {
           contenteditable: 'false',
-          style: 'position: absolute; left: -20px; bottom: 12px; user-select: none; pointer-events: none; font-size: 24px; line-height: 0; color: #a0a0a0;',
+          style: 'position: absolute; left: -20px; top: 12px; user-select: none; pointer-events: none; font-size: 24px; line-height: 0; color: #a0a0a0;',
         },
         bulletUnicode,
       ],
@@ -161,7 +161,7 @@ export const BulletItem = Node.create({
       const match = /^(\s*)- /.exec(src);
       return match ? 0 : -1;
     },
-    tokenize: (src, tokens, lexer) => {
+    tokenize: (src, lexer) => {
       const match = /^(\s*)- (.+?)(?:\n|$)/.exec(src);
       
       if (!match) return undefined;
@@ -192,7 +192,7 @@ export const BulletItem = Node.create({
     };
   },
 
-  renderMarkdown: (node, helpers, context) => {
+  renderMarkdown: (node, helpers) => {
     const indent = node.attrs?.indent || 0;
     const spaces = ' '.repeat(indent * INDENT_SIZE);
     const content = helpers.renderChildren(node.content || []);
@@ -204,7 +204,7 @@ export const BulletItem = Node.create({
     return [
       {
         find: /^(\s*)- $/,
-        handler: ({ state, range, match, chain }) => {
+        handler: ({ state, range, match }) => {
           const spaces = match[1].length;
           const indentLevel = Math.floor(spaces / INDENT_SIZE);
           
