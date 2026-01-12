@@ -5,10 +5,7 @@ const defaultShortcuts = (editor) => {
             const text = editor.state.doc.textBetween(from, to);
 
             if (text) {
-                editor.commands.insertContentAt(
-                    { from, to },
-                    `**${text}**`
-                );
+                editor.commands.insertContentAt({ from, to }, `**${text}**`);
             } else {
                 editor.commands.insertContent("****");
                 // Move cursor between the asterisks
@@ -35,10 +32,7 @@ const defaultShortcuts = (editor) => {
             const text = editor.state.doc.textBetween(from, to);
 
             if (text) {
-                editor.commands.insertContentAt(
-                    { from, to },
-                    `\`${text}\``
-                );
+                editor.commands.insertContentAt({ from, to }, `\`${text}\``);
             } else {
                 editor.commands.insertContent("``");
                 const pos = editor.state.selection.from - 1;
@@ -51,19 +45,15 @@ const defaultShortcuts = (editor) => {
             const text = editor.state.doc.textBetween(from, to);
 
             if (text) {
-                editor.commands.insertContentAt(
-                    { from, to },
-                    `~~${text}~~`
-                );
+                editor.commands.insertContentAt({ from, to }, `~~${text}~~`);
             } else {
                 editor.commands.insertContent("~~~~");
                 const pos = editor.state.selection.from - 2;
                 editor.commands.setTextSelection(pos);
             }
             return true;
-        },
+        }
     };
 };
-
 
 export { defaultShortcuts };

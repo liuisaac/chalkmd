@@ -2,38 +2,48 @@ import { useEffect, useState, useRef } from "react";
 import { EditorContent } from "@tiptap/react";
 import { useVault } from "../../../VaultProvider";
 import { useTabContext } from "../../../TabProvider";
-import CustomEditor, { docToText, textToDoc } from "./wysiwyg/CustomEditor";
+import CustomEditor from "./wysiwyg/CustomEditor";
 import EditorNoteBar from "./EditorNoteBar";
+import { HistoryManager } from "../stores/HistoryManager";
 
 const EditorEngine = () => {
     const { content, setContent, currentFile, renameFile } = useVault();
     const { updateTabContent } = useTabContext();
-    
     const titleInputRef = useRef(null);
     const [title, setTitle] = useState("");
+    const lastSavedFileRef = useRef(currentFile);
 
-    // Setup the editor with a specific keydown handler in editorProps
     const editor = CustomEditor({ 
         content, 
         setContent, 
         updateTabContent,
-        // We inject the ArrowUp logic directly into the editor's prop configuration
+        filePath: currentFile,
         editorProps: {
             handleKeyDown: (view, event) => {
                 if (event.key === "ArrowUp") {
-                    const { state } = view;
-                    const { selection } = state;
-                    
-                    // If the cursor is at the very start (position 1), move to title
+                    const { selection } = view.state;
                     if (selection.$anchor.pos <= 1) {
                         titleInputRef.current?.focus();
-                        return true; // "true" stops the event from bubbling
+                        return true;
                     }
                 }
                 return false;
             }
         }
     });
+
+    useEffect(() => {
+        const handleUnload = () => {
+            if (editor && !editor.isDestroyed && lastSavedFileRef.current) {
+                HistoryManager.saveHistory(lastSavedFileRef.current, editor);
+            }
+        };
+
+        handleUnload();
+        lastSavedFileRef.current = currentFile;
+
+        return () => handleUnload();
+    }, [currentFile, editor]);
 
     useEffect(() => {
         if (currentFile) {
@@ -45,7 +55,6 @@ const EditorEngine = () => {
     const submitTitleRename = async () => {
         const trimmedTitle = title.trim();
         const currentFileName = currentFile.replace(/\.[^/.]+$/, "").split("/").pop();
-
         if (trimmedTitle && trimmedTitle !== currentFileName) {
             try {
                 const parentPath = currentFile.substring(0, currentFile.lastIndexOf("/"));
@@ -53,37 +62,20 @@ const EditorEngine = () => {
                 const newPath = parentPath 
                     ? `${parentPath}/${trimmedTitle}.${extension}` 
                     : `${trimmedTitle}.${extension}`;
-                
                 await renameFile(currentFile, newPath);
             } catch (err) {
-                console.error("Failed to rename:", err);
                 setTitle(currentFileName);
             }
         }
     };
 
     const handleTitleKeyDown = (e) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" || e.key === "ArrowDown") {
             e.preventDefault();
-            e.target.blur();
-            editor?.commands.focus('start');
-        }
-
-        if (e.key === "ArrowDown") {
-            e.preventDefault();
+            if (e.key === "Enter") e.target.blur();
             editor?.commands.focus('start');
         }
     };
-
-    // Keep content in sync
-    useEffect(() => {
-        if (editor) {
-            const currentText = docToText(editor);
-            if (content !== currentText) {
-                editor.commands.setContent(textToDoc(content));
-            }
-        }
-    }, [content, editor]);
 
     if (!editor) return <div>Loading editor...</div>;
 
@@ -91,7 +83,6 @@ const EditorEngine = () => {
         <div className="w-full h-full overflow-auto bg-offwhite border-t-[1px] border-[#e0e0e0] text-black text-left font-inconsolata">
             <div className="max-w-[750px] mx-auto">
                 <EditorNoteBar />
-                
                 <div className="px-6 mt-4">
                     <input
                         ref={titleInputRef}
@@ -104,9 +95,7 @@ const EditorEngine = () => {
                         placeholder="Untitled"
                     />
                 </div>
-
-                <EditorContent editor={editor} />
-                
+                <EditorContent editor={editor} key={currentFile} />
                 <style>{`
                     .ProseMirror { padding: 1.5rem 1.5rem; outline: none; }
                     .ProseMirror p { margin: 0.2em 0; }

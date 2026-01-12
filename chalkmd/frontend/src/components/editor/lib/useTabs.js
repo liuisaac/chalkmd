@@ -1,10 +1,18 @@
 import React, { useCallback } from "react";
 import History from "../tab/history";
 import { useVault } from "../../../VaultProvider";
+
 export const useTabs = () => {
     const { setCurrentFile, setContent, readFile } = useVault();
     const [tabs, setTabs] = React.useState([
-        { id: 1, file: null, content: "", history: new History(50) },
+        { 
+            id: 1, 
+            file: null, 
+            content: "", 
+            history: new History(50),
+            // NEW: Store editor state per tab
+            editorState: null 
+        },
     ]);
     const [activeTabId, setActiveTabId] = React.useState(1);
     const [nextId, setNextId] = React.useState(2);
@@ -20,6 +28,7 @@ export const useTabs = () => {
             file: null,
             content: "",
             history: new History(50),
+            editorState: null, // NEW
         };
 
         setTabs((prev) => [...prev, newTab]);
@@ -56,7 +65,7 @@ export const useTabs = () => {
                 return newTabs;
             });
         },
-        [activeTabId, setCurrentFile, setContent] // Add dependencies
+        [activeTabId, setCurrentFile, setContent]
     );
 
     const updateTabContent = useCallback(
@@ -73,13 +82,39 @@ export const useTabs = () => {
         [activeTabId]
     );
 
+    // NEW: Save editor state for current tab
+    const saveEditorState = useCallback(
+        (editorState) => {
+            setTabs((currentTabs) =>
+                currentTabs.map((t) => {
+                    if (t.id === activeTabId) {
+                        return { ...t, editorState };
+                    }
+                    return t;
+                })
+            );
+        },
+        [activeTabId]
+    );
+
+    // NEW: Get editor state for current tab
+    const getEditorState = useCallback(() => {
+        const tab = tabs.find((t) => t.id === activeTabId);
+        return tab?.editorState || null;
+    }, [tabs, activeTabId]);
+
     const loadFileInTab = useCallback(
         (filePath, fileContent) => {
             setTabs((currentTabs) => {
                 return currentTabs.map((t) => {
                     if (t.id === activeTabId) {
                         t.history.push(filePath);
-                        return { ...t, file: filePath, content: fileContent };
+                        return { 
+                            ...t, 
+                            file: filePath, 
+                            content: fileContent,
+                            editorState: null // Clear editor state for new file
+                        };
                     }
                     return t;
                 });
@@ -92,7 +127,6 @@ export const useTabs = () => {
         async (direction) => {
             if (!activeTab || isNavigating) return;
 
-            // 1. Get the file from history BEFORE updating state
             const fileToNavigateTo =
                 direction === "forward"
                     ? activeTab.history.forward()
@@ -108,7 +142,6 @@ export const useTabs = () => {
             setIsNavigating(true);
 
             try {
-                // 2. Update the tabs state to reflect the new file for this tab
                 setTabs((currentTabs) =>
                     currentTabs.map((t) =>
                         t.id === activeTabId
@@ -117,7 +150,6 @@ export const useTabs = () => {
                     )
                 );
 
-                // 3. Update the global vault/editor state
                 console.log("Reading file content for:", fileToNavigateTo);
                 const fileContent = await readFile(fileToNavigateTo);
 
@@ -128,12 +160,10 @@ export const useTabs = () => {
             } catch (error) {
                 console.error("Error during navigation:", error);
             } finally {
-                // Small timeout prevents "double-pushing" the same file
-                // back into history while the editor is loading
                 setTimeout(() => setIsNavigating(false), 100);
             }
         },
-        [activeTabId, activeTab, isNavigating]
+        [activeTabId, activeTab, isNavigating, readFile, setCurrentFile, setContent]
     );
 
     const pushToHistory = useCallback(
@@ -182,5 +212,7 @@ export const useTabs = () => {
         canGoBack,
         canGoForward,
         switchTab,
+        saveEditorState, // NEW
+        getEditorState,  // NEW
     };
 };
