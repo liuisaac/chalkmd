@@ -5,6 +5,7 @@ import { useTabContext } from "../../../TabProvider";
 import CustomEditor, { docToText, textToDoc } from "./wysiwyg/CustomEditor";
 import EditorNoteBar from "./EditorNoteBar";
 import { HistoryManager } from "../stores/HistoryManager";
+import EditorInfoWidget from "./EditorInfoWidget";
 
 const EditorEngine = () => {
     const { content, setContent, currentFile, renameFile } = useVault();
@@ -99,6 +100,7 @@ const EditorEngine = () => {
     return (
         <div className="w-full h-full overflow-auto bg-offwhite border-t-[1px] border-[#e0e0e0] text-black text-left font-inconsolata selection:bg-[#E8DEFD]">
             <div className="max-w-[750px] mx-auto">
+                <EditorInfoWidget />
                 <EditorNoteBar />
                 <div className="px-6 mt-4">
                     <input

@@ -15,7 +15,7 @@ const EditorInfoWidget = () => {
     };
 
     return (
-        <div className="fixed right-0 bottom-0 pr-2 pl-4 pb-1 h-7 bg-topbar rounded-tl-md text-gray-500 border border-[#d3d3d3] text-[12px] flex flex-row items-end justify-center gap-2">
+        <div className="fixed right-0 bottom-0 pr-2 pl-4 pb-1 h-7 bg-offwhite rounded-tl-md text-gray-500 border border-[#d3d3d3] text-[12px] flex flex-row items-end justify-center gap-2">
             <span className="select-none">0 backlinks</span>
 
             <PenLine size={13} className="inline-block ml-2 mb-1" />
