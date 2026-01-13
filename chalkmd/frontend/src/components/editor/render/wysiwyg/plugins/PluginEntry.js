@@ -1,7 +1,6 @@
 import { Plugin } from "@tiptap/pm/state";
 import { DecorationSet } from "@tiptap/pm/view";
 import boldHandler from "../default/Bold";
-import checkboxHandler from "../default/Checkbox";
 import headerHandler from "../default/Header";
 import italicHandler from "../default/Italic";
 
@@ -22,7 +21,6 @@ const plugins = (editor) => {
             headerHandler(text, decorations, isActive, nodeStart);
             boldHandler(text, decorations, nodeStart, cursorPos);
             italicHandler(text, decorations, nodeStart, cursorPos);
-            checkboxHandler(text, decorations, nodeStart, isActive, state, pos, node, editor);
           }
         });
 

@@ -4,6 +4,7 @@ import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
 import plugins from "./plugins/PluginEntry";
 import BulletItem from "./default/Bullet";
+import CheckboxItem from "./default/Checkbox";
 import { defaultShortcuts } from "./hotkeys/Shortcuts";
 import { History } from "@tiptap/extension-history";
 import { HistoryManager } from "../../stores/HistoryManager";
@@ -21,6 +22,20 @@ const textToDoc = (text) => {
     const lines = text.split("\n");
     const content = [];
     for (const line of lines) {
+        const checkboxMatch = line.match(/^(\s*)- \[([ x])\] (.*)$/);
+        if (checkboxMatch) {
+            const spaces = checkboxMatch[1].length;
+            const indentLevel = Math.floor(spaces / INDENT_SIZE);
+            const checked = checkboxMatch[2] === "x";
+            const itemText = checkboxMatch[3];
+            content.push({
+                type: "checkboxItem",
+                attrs: { indent: indentLevel, checked: checked },
+                content: itemText ? [{ type: "text", text: itemText }] : [],
+            });
+            continue;
+        }
+
         const bulletMatch = line.match(/^(\s*)- (.*)$/);
         if (bulletMatch) {
             const spaces = bulletMatch[1].length;
@@ -31,12 +46,13 @@ const textToDoc = (text) => {
                 attrs: { indent: indentLevel },
                 content: itemText ? [{ type: "text", text: itemText }] : [],
             });
-        } else {
-            content.push({
-                type: "paragraph",
-                content: line ? [{ type: "text", text: line }] : [],
-            });
+            continue;
         }
+
+        content.push({
+            type: "paragraph",
+            content: line ? [{ type: "text", text: line }] : [],
+        });
     }
     return {
         type: "doc",
@@ -50,7 +66,14 @@ const docToText = (editor) => {
     const { doc } = editor.state;
     const lines = [];
     doc.forEach((node) => {
-        if (node.type.name === "bulletItem") {
+        if (node.type.name === "checkboxItem") {
+            const indent = node.attrs.indent || 0;
+            const checked = node.attrs.checked || false;
+            const spaces = " ".repeat(indent * INDENT_SIZE);
+            const content = node.textContent;
+            const checkmark = checked ? "x" : " ";
+            lines.push(`${spaces}- [${checkmark}] ${content}`);
+        } else if (node.type.name === "bulletItem") {
             const indent = node.attrs.indent || 0;
             const spaces = " ".repeat(indent * INDENT_SIZE);
             const content = node.textContent;
@@ -86,6 +109,7 @@ const editor = ({
                 },
             }),
             Text,
+            CheckboxItem,
             BulletItem,
             History.configure({
                 depth: 100,
