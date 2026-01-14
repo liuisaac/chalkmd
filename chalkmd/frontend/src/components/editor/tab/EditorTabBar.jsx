@@ -30,7 +30,7 @@ const EditorTabBar = ({
 
     return (
         <div 
-            className="flex-1 flex flex-row items-center justify-start bg-topbar h-10"
+            className="flex-1 flex flex-row items-center justify-start bg-transparent h-10"
             style={{ 
                 marginLeft: `${Math.max(44, sidebarWidth)}px`,
                 maxWidth: `${maxContainerWidth}px`,

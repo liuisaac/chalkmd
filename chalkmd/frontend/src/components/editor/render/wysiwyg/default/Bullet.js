@@ -187,7 +187,8 @@ export const BulletItem = Node.create({
     addInputRules() {
         return [
             {
-                find: /^(\s*)- (?!\[[ x]\])$/,
+                // Reverted to standard check. The conflict is handled in CheckboxItem.
+                find: /^(\s*)- $/,
                 handler: ({ state, range, match }) => {
                     const spaces = match[1].length;
                     const indentLevel = Math.floor(spaces / INDENT_SIZE);

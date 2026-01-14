@@ -7,7 +7,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        'topbar': "#ededed",
+        'topbar': "#f0f0f0",
+        'midbar': "#f4f4f4",
         'offwhite': '#f8f8f8',
         'offpurple': '#8250ff'
       },

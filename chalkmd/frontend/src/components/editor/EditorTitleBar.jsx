@@ -9,7 +9,7 @@ const EditorTitleBar = ({ sidebarWidth }) => {
     
     return (
         <div
-            className="h-10 w-screen flex items-center bg-topbar absolute top-0 left-0"
+            className="h-10 w-screen flex items-center bg-midbar absolute top-0 left-0"
             style={{ "--wails-draggable": "drag" }}
         >
             <EditorTabBar 

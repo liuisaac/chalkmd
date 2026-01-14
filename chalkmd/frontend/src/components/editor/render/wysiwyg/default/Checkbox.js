@@ -31,6 +31,18 @@ export const CheckboxItem = Node.create({
         ];
     },
 
+    renderHTML({ node, HTMLAttributes }) {
+        return [
+            "div",
+            mergeAttributes(HTMLAttributes, {
+                "data-type": "checkbox-item",
+                "data-indent": node.attrs.indent,
+                "data-checked": node.attrs.checked,
+            }),
+            0,
+        ];
+    },
+
     addNodeView() {
         return ({ node, getPos, editor }) => {
             const dom = document.createElement("div");
@@ -347,6 +359,7 @@ export const CheckboxItem = Node.create({
 
     addInputRules() {
         return [
+            // Standard Rule: Paragraph -> Checkbox
             {
                 find: /^(\s*)- \[([ x])\] $/,
                 handler: ({ state, range, match }) => {
@@ -375,6 +388,31 @@ export const CheckboxItem = Node.create({
                     return tr;
                 },
             },
+            // NEW RULE: Bullet -> Checkbox (Override)
+            {
+                find: /^\[([ x])\] $/,
+                handler: ({ state, range, match }) => {
+                    const { tr } = state;
+                    const { from, to } = range;
+                    const $start = state.doc.resolve(from);
+                    
+                    // Only trigger if we are inside a bulletItem
+                    if ($start.parent.type.name !== "bulletItem") return null;
+                    
+                    const indent = $start.parent.attrs.indent || 0;
+                    const checked = match[1] === "x";
+                    
+                    // Convert the Bullet node to a Checkbox node
+                    tr.setNodeMarkup($start.before(), state.schema.nodes.checkboxItem, {
+                        indent,
+                        checked,
+                    });
+                    
+                    tr.delete(from, to);
+                    
+                    return tr;
+                }
+            }
         ];
     },
 });

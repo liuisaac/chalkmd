@@ -34,17 +34,19 @@ const EditorEngine = () => {
     });
 
     useEffect(() => {
-        const handleUnload = () => {
-            if (editor && !editor.isDestroyed && lastSavedFileRef.current) {
+        // Only save history when switching files (not on initial mount)
+        if (lastSavedFileRef.current && lastSavedFileRef.current !== currentFile) {
+            if (editor && !editor.isDestroyed) {
                 HistoryManager.saveHistory(lastSavedFileRef.current, editor);
             }
-        };
-
-        handleUnload();
+        }
         lastSavedFileRef.current = currentFile;
 
+        // Cleanup on unmount
         return () => {
-            handleUnload(currentFile);
+            if (editor && !editor.isDestroyed && currentFile) {
+                HistoryManager.saveHistory(currentFile, editor);
+            }
         };
     }, [currentFile, editor]);
 
@@ -115,7 +117,7 @@ const EditorEngine = () => {
                     />
                 </div>
                 <div className="text-light text-[#222222]">
-                    <EditorContent editor={editor} key={currentFile} />
+                    <EditorContent editor={editor} />
                 </div>
                 <style>{`
                     .ProseMirror { 

@@ -22,7 +22,8 @@ const textToDoc = (text) => {
     const lines = text.split("\n");
     const content = [];
     for (const line of lines) {
-        const checkboxMatch = line.match(/^(\s*)- \[([ x])\] (.*)$/);
+        // Fixed: Make space after ] optional and content optional
+        const checkboxMatch = line.match(/^(\s*)- \[([ x])\]\s?(.*)$/);
         if (checkboxMatch) {
             const spaces = checkboxMatch[1].length;
             const indentLevel = Math.floor(spaces / INDENT_SIZE);
