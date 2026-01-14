@@ -22,6 +22,10 @@ export function ListVaultContents() {
   return window['go']['main']['App']['ListVaultContents']();
 }
 
+export function MoveFile(arg1, arg2) {
+  return window['go']['main']['App']['MoveFile'](arg1, arg2);
+}
+
 export function OpenVault(arg1) {
   return window['go']['main']['App']['OpenVault'](arg1);
 }

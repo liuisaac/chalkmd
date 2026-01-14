@@ -7,6 +7,7 @@ import {
     DeleteFile,
     WriteFile,
     ReadFile,
+    MoveFile,
 } from "../wailsjs/go/main/App";
 import { useState, useEffect, createContext, useContext } from "react";
 
@@ -39,7 +40,6 @@ export const VaultProvider = ({ children }) => {
         }
     }, []);
 
-    // Auto-save effect
     useEffect(() => {
         if (!currentFile || !vaultPath || content === "") return;
 
@@ -77,7 +77,6 @@ export const VaultProvider = ({ children }) => {
             let nameToCreate = fileName;
 
             if (!nameToCreate) {
-                // Check ROOT directory only by looking at path
                 const existingNames = files
                     .filter(
                         (f) =>
@@ -144,6 +143,16 @@ export const VaultProvider = ({ children }) => {
         }
     };
 
+    const moveFile = async (oldPath, newPath) => {
+        try {
+            await MoveFile(oldPath, newPath);
+            await loadVaultContents();
+        } catch (error) {
+            console.error("Error moving file:", error);
+            throw error;
+        }
+    };
+
     const deleteFile = async (path) => {
         try {
             await DeleteFile(path);
@@ -180,6 +189,7 @@ export const VaultProvider = ({ children }) => {
         createFile,
         createFolder,
         renameFile,
+        moveFile,
         deleteFile,
         readFile,
     };

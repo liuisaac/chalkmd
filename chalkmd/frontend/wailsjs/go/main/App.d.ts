@@ -12,6 +12,8 @@ export function GetVaultPath():Promise<string>;
 
 export function ListVaultContents():Promise<Array<main.FileInfo>>;
 
+export function MoveFile(arg1:string,arg2:string):Promise<void>;
+
 export function OpenVault(arg1:string):Promise<void>;
 
 export function ReadFile(arg1:string):Promise<string>;

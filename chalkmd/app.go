@@ -215,3 +215,23 @@ func (a *App) RenameFile(oldPath string, newPath string) error {
 	
 	return os.Rename(oldFullPath, newFullPath)
 }
+
+func (a *App) MoveFile(oldPath string, newPath string) error {
+	if a.currentVault == "" {
+		return fmt.Errorf("no vault opened")
+	}
+	
+	oldFullPath := filepath.Join(a.currentVault, oldPath)
+	newFullPath := filepath.Join(a.currentVault, newPath)
+	
+	if !strings.HasPrefix(oldFullPath, a.currentVault) || !strings.HasPrefix(newFullPath, a.currentVault) {
+		return fmt.Errorf("invalid path: outside vault")
+	}
+	
+	newDir := filepath.Dir(newFullPath)
+	if err := os.MkdirAll(newDir, 0755); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
+	
+	return os.Rename(oldFullPath, newFullPath)
+}

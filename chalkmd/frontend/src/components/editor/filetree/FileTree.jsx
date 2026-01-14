@@ -7,8 +7,9 @@ import { useVault } from "../../../VaultProvider";
 const FileTree = ({ files, onFileClick }) => {
     const [menu, setMenu] = useState(null);
     const [editingPath, setEditingPath] = useState(null);
+    const [dragState, setDragState] = useState({ path: null, overPath: null });
     const treeRef = useRef(null);
-    const { deleteFile } = useVault();
+    const { deleteFile, moveFile, renameFile } = useVault();
 
     const handleContextMenu = (e, path = null) => {
         if (treeRef.current && treeRef.current.contains(e.target)) {
@@ -36,6 +37,46 @@ const FileTree = ({ files, onFileClick }) => {
         }
     };
 
+    const handleMove = async (sourcePath, targetFolderPath) => {
+        const fileName = sourcePath.split('/').pop();
+        const newPath = targetFolderPath ? `${targetFolderPath}/${fileName}` : fileName;
+        
+        if (sourcePath === newPath) {
+            return;
+        }
+        
+        try {
+            await moveFile(sourcePath, newPath);
+        } catch (err) {
+            console.error('Failed to move file:', err);
+        }
+    };
+
+    const handleRootDragOver = (e) => {
+        if (e.target === treeRef.current || e.target.closest('.overflow-y-auto')) {
+            e.preventDefault();
+            setDragState(prev => ({ ...prev, overPath: '' }));
+        }
+    };
+
+    const handleRootDrop = (e) => {
+        if (e.target === treeRef.current || e.target.closest('.overflow-y-auto')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const draggedPath = e.dataTransfer.getData('text/plain');
+            if (draggedPath && draggedPath.includes('/')) {
+                handleMove(draggedPath, '');
+            }
+            setDragState({ path: null, overPath: null });
+        }
+    };
+
+    const handleRootDragLeave = (e) => {
+        if (e.target === treeRef.current || e.target.closest('.overflow-y-auto')) {
+            setDragState(prev => ({ ...prev, overPath: null }));
+        }
+    };
+
     const fileTree = buildFileTree(files);
 
     if (fileTree.length === 0) {
@@ -51,6 +92,9 @@ const FileTree = ({ files, onFileClick }) => {
             ref={treeRef}
             className="w-full h-full min-h-screen pl-12 select-none flex flex-col truncate"
             onContextMenu={(e) => handleContextMenu(e, null)}
+            onDragOver={handleRootDragOver}
+            onDrop={handleRootDrop}
+            onDragLeave={handleRootDragLeave}
         >
             <div className="overflow-y-auto flex-1">
                 {fileTree.map((item, index) => (
@@ -62,6 +106,9 @@ const FileTree = ({ files, onFileClick }) => {
                         editingPath={editingPath}
                         onRenameComplete={() => setEditingPath(null)}
                         onContextMenu={handleContextMenu}
+                        onMove={handleMove}
+                        dragState={dragState}
+                        onDragStateChange={setDragState}
                     />
                 ))}
             </div>
