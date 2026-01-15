@@ -1,16 +1,23 @@
-import {
-    OpenVault,
-    ListVaultContents,
-    CreateFile,
-    CreateFolder,
-    RenameFile,
-    DeleteFile,
-    WriteFile,
-    ReadFile,
-    ReadBinaryFile,
-    MoveFile,
-} from "../wailsjs/go/internal/App";
 import { useState, useEffect, createContext, useContext } from "react";
+
+// fs handlers
+import {
+    createFile,
+    createFolder,
+    renameFile,
+    moveFile,
+    deleteFile,
+    readFile,
+} from "./fs/file";
+
+import {
+    loadVaultContents as LoadVaultContents,
+    createVault,
+    openVault as OpenVault,
+    selectVaultFolder,
+} from "./fs/vault";
+
+import { readBinaryFile } from "./fs/assets";
 
 // settings, eventually extensions
 import settings from "../../settings.json";
@@ -44,7 +51,7 @@ export const VaultProvider = ({ children }) => {
         const savedPath = localStorage.getItem("vaultPath");
         if (savedPath) {
             OpenVault(savedPath)
-                .then(() => loadVaultContents())
+                .then(() => LoadVaultContents(setFiles))
                 .catch((error) => {
                     console.error("Error loading saved vault:", error);
                     setVaultPath(null);
@@ -52,152 +59,13 @@ export const VaultProvider = ({ children }) => {
         }
     }, []);
 
-    useEffect(() => {
-        if (!currentFile || !vaultPath || content === "") return;
-
-        const timeout = setTimeout(() => {
-            WriteFile(currentFile, content).catch((err) =>
-                console.error("Auto-save failed:", err)
-            );
-        }, 1000);
-
-        return () => clearTimeout(timeout);
-    }, [content, currentFile, vaultPath]);
-
-    const loadVaultContents = async () => {
-        try {
-            const fileList = await ListVaultContents();
-            setFiles(fileList);
-        } catch (error) {
-            console.error("Error loading vault:", error);
-            throw error;
-        }
-    };
-
-    const openVault = async (path) => {
-        try {
-            await OpenVault(path);
-            setVaultPath(path);
-            await loadVaultContents();
-        } catch (error) {
-            throw new Error("Error opening vault: " + error);
-        }
-    };
-
-    const createFile = async (fileName) => {
-        try {
-            let nameToCreate = fileName;
-
-            if (!nameToCreate) {
-                const existingNames = files
-                    .filter(
-                        (f) =>
-                            !f.isDir &&
-                            !f.path.includes("/") &&
-                            !f.path.includes("\\")
-                    )
-                    .map((f) => f.path.toLowerCase());
-
-                if (!existingNames.includes("untitled.md")) {
-                    nameToCreate = "Untitled.md";
-                } else {
-                    let counter = 1;
-                    while (existingNames.includes(`untitled ${counter}.md`)) {
-                        counter++;
-                    }
-                    nameToCreate = `Untitled ${counter}.md`;
-                }
-            }
-
-            const fullPath = await CreateFile(nameToCreate);
-            await loadVaultContents();
-
-            const relativePath = fullPath.substring(vaultPath.length + 1);
-            return relativePath;
-        } catch (error) {
-            console.error("Error creating file:", error);
-            throw error;
-        }
-    };
-
-    const createFolder = async (folderName) => {
-        try {
-            let nameToCreate = folderName;
-
-            if (!nameToCreate) {
-                const existingNames = files.map((f) => f.name.toLowerCase());
-                if (!existingNames.includes("Untitled")) {
-                    nameToCreate = "Untitled";
-                } else {
-                    let counter = 1;
-                    while (existingNames.includes(`Untitled ${counter}`)) {
-                        counter++;
-                    }
-                    nameToCreate = `Untitled ${counter}`;
-                }
-            }
-
-            await CreateFolder(nameToCreate);
-            await loadVaultContents();
-        } catch (error) {
-            console.error("Error creating folder:", error);
-            throw error;
-        }
-    };
-
-    const renameFile = async (oldPath, newPath) => {
-        try {
-            await RenameFile(oldPath, newPath);
-            await loadVaultContents();
-        } catch (error) {
-            console.error("Error renaming file:", error);
-            throw error;
-        }
-    };
-
-    const moveFile = async (oldPath, newPath) => {
-        try {
-            await MoveFile(oldPath, newPath);
-            await loadVaultContents();
-        } catch (error) {
-            console.error("Error moving file:", error);
-            throw error;
-        }
-    };
-
-    const deleteFile = async (path) => {
-        try {
-            await DeleteFile(path);
-            await loadVaultContents();
-        } catch (error) {
-            console.error("Error deleting file:", error);
-            throw error;
-        }
-    };
-
-    const readFile = async (path) => {
-        try {
-            const result = await ReadFile(path);
-            return result;
-        } catch (err) {
-            console.error("Failed to read file:", err);
-            throw err;
-        }
-    };
-
-    const readBinaryFile = async (path) => {
-        try {
-            const result = await ReadBinaryFile(path);
-            return result;
-        } catch (err) {
-            console.error("Failed to read binary file:", err);
-            throw err;
-        }
-    };
+    const openVault = async (x) => {OpenVault(x, setVaultPath, setFiles);}
+    const loadVaultContents = async () => {LoadVaultContents(setFiles);}
 
     const value = {
         vaultPath,
         setVaultPath,
+        selectVaultFolder,
         files,
         setFiles,
         currentFile,
@@ -207,6 +75,7 @@ export const VaultProvider = ({ children }) => {
         expandedFolders,
         setExpandedFolders,
         loadVaultContents,
+        createVault,
         openVault,
         createFile,
         createFolder,

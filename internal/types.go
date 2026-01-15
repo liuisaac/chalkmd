@@ -5,7 +5,7 @@ import (
 )
 
 type App struct {
-	ctx         context.Context
+	ctx          context.Context
 	currentVault string
 }
 

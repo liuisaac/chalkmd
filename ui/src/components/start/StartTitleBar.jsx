@@ -1,5 +1,5 @@
-import Minimize from "../lib/Minimize";
-import Exit from "../lib/Exit";
+import Minimize from "../icons/Minimize";
+import Exit from "../icons/Exit";
 
 const StartTitleBar = () => {
     return (

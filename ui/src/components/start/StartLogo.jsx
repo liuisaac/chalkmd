@@ -1,4 +1,4 @@
-import Logo from "../lib/Logo.jsx";
+import Logo from "../icons/Logo.jsx";
 import release from "../../../../release.json";
 
 const StartLogo = () => {
@@ -10,8 +10,14 @@ const StartLogo = () => {
             <span className="text-4xl font-bold  mb-2 font-syne text-black">
                 Chalk
             </span>
-            <p className="text-sm text-black/50">{release.version || "0.1.0"}</p>
-            <p className="text-[10px] mb-16 text-black/50">yup its just obsidian</p>
+            {release.version && (
+                <p className="text-sm text-black/50">{release.version}</p>
+            )}
+            {release.releaseNotes && (
+                <p className="text-[10px] mb-16 text-black/50">
+                    {release.releaseNotes}
+                </p>
+            )}
         </div>
     );
 };

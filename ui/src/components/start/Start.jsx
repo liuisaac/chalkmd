@@ -1,7 +1,7 @@
 import StartTitleBar from "./StartTitleBar";
 import StartLogo from "./StartLogo";
 import StartSidebar from "./StartSidebar";
-import StartOptions from "./StartOptions";
+import StartOptions from "./options/StartOptions";
 
 const Start = () => {
     return (
