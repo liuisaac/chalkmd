@@ -1,8 +1,5 @@
-chalkmd/build/bin
 node_modules
-chalkmd/frontend/dist
-chalkmd/frontend/package.json.md5
-chalkmd/chalkmd
-chalkmd/go.sum
-chalkmd/go.mod
-chalkmd/test.exe
+ui/package.json.md5
+ui/dist
+ui/wailsjs
+chalkmd

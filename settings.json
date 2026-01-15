@@ -1,0 +1,7 @@
+{
+    "developmentMode": true,
+    "developmentSettings": {
+        "bypassLocalStorage": false
+    },
+    "autoSaveInterval": 100
+}
