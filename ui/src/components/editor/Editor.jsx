@@ -6,7 +6,7 @@ import { useVault } from "../../VaultProvider";
 import { useEffect, useState } from "react";
 
 const Editor = () => {
-    const { files, currentFile, setCurrentFile, setContent, readFile } =
+    const { currentFile, setCurrentFile, setContent, readFile } =
         useVault();
     const { loadFileInTab } = useTabContext();
     const [sidebarWidth, setSidebarWidth] = useState(235);
@@ -42,7 +42,6 @@ const Editor = () => {
             <EditorTitleBar sidebarWidth={sidebarWidth} />
             <div className="flex overflow-hidden m-0 p-0 min-w-0">
                 <EditorSidebar
-                    files={files}
                     onFileClick={handleFileClick}
                     setSidebarWidth={setSidebarWidth}
                 />

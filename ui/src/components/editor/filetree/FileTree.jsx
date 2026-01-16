@@ -4,12 +4,12 @@ import FileTreeItem from "./FileTreeItem";
 import { buildFileTree } from "./buildFileTree";
 import { useVault } from "../../../VaultProvider";
 
-const FileTree = ({ files, onFileClick }) => {
+const FileTree = ({ onFileClick }) => {
     const [menu, setMenu] = useState(null);
     const [editingPath, setEditingPath] = useState(null);
     const [dragState, setDragState] = useState({ path: null, overPath: null });
     const treeRef = useRef(null);
-    const { deleteFile, moveFile, renameFile } = useVault();
+    const { files, deleteFile, moveFile } = useVault();
 
     const handleContextMenu = (e, path = null) => {
         if (treeRef.current && treeRef.current.contains(e.target)) {

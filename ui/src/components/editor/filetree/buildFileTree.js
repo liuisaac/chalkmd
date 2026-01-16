@@ -15,7 +15,7 @@ export const buildFileTree = (files) => {
 
     normalizedFiles.forEach((file) => {
         const parts = file.path.split("/").filter((p) => p);
-        const fileName = parts[parts.lengthi - 1];
+        const fileName = parts[parts.length - 1];
 
         const item = {
             ...file,
@@ -48,6 +48,9 @@ export const buildFileTree = (files) => {
             const nameB = b.name;
 
             const parse = (name) => {
+                if (!name || typeof name !== 'string') {
+                    return { name: name || 'Unknown', number: 0 };
+                }
                 const match = name.match(/^(.+?)( \d+)?(\.\w+)?$/);
                 if (match) {
                     return {

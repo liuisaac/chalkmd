@@ -59,8 +59,8 @@ export const VaultProvider = ({ children }) => {
     useEffect(() => {
         const savedPath = localStorage.getItem("vaultPath");
         if (savedPath) {
-            OpenVault(savedPath)
-                .then(() => LoadVaultContents(setFiles))
+            openVault(savedPath)
+                .then(() => loadVaultContents())
                 .catch((error) => {
                     console.error("Error loading saved vault:", error);
                     setVaultPath(null);

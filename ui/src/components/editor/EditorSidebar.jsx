@@ -5,7 +5,7 @@ import EditorFooter from "./sidebar/EditorFooter";
 import FileTree from "./filetree/FileTree";
 import FileTreeRibbon from "./filetree/FileTreeRibbon";
 
-const EditorSidebar = ({ files, onFileClick, setSidebarWidth }) => {
+const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
     const minimumWidth = 235;
     const collapseThreshold = 100;
     const [width, setWidth] = useState(minimumWidth);
@@ -109,7 +109,6 @@ const EditorSidebar = ({ files, onFileClick, setSidebarWidth }) => {
                         <div className="flex-1 overflow-y-auto overflow-x-hidden w-full custom-sidebar-scrollbar text-left">
                             <div className="flex flex-col min-h-full">
                                 <FileTree
-                                    files={files}
                                     onFileClick={onFileClick}
                                 />
                             </div>
