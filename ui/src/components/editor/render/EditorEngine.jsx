@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { EditorContent } from "@tiptap/react";
 import { useVault } from "../../../VaultProvider";
 import { useTabContext } from "../../../TabProvider";
-import CustomEditor, { docToText, textToDoc } from "./wysiwyg/CustomEditor";
+import CustomEditor, { serialize, deserialize } from "./wysiwyg/CustomEditor";
 import EditorNoteBar from "./EditorNoteBar";
 import { HistoryManager } from "../stores/HistoryManager";
 import EditorInfoWidget from "./EditorInfoWidget";
@@ -56,8 +56,8 @@ const EditorEngine = () => {
     }, [currentFile, editor]);
 
     useEffect(() => {
-        if (editor && content !== docToText(editor)) {
-            editor.commands.setContent(textToDoc(content), false);
+        if (editor && content !== serialize(editor)) {
+            editor.commands.setContent(deserialize(content), false);
         }
     }, [content, editor]);
 

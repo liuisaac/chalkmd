@@ -2,110 +2,27 @@ import { useEditor } from "@tiptap/react";
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
+
+// serialization
+import serialize from "../../lib/serializeDoc";
+import deserialize from "../../lib/deserializeDoc";
+
+// custom plugins and extensions
 import plugins from "./plugins/PluginEntry";
 import BulletItem from "./default/Bullet";
 import CheckboxItem from "./default/Checkbox";
-import { defaultShortcuts } from "./hotkeys/Shortcuts";
-import { History } from "@tiptap/extension-history";
-import { HistoryManager } from "../../stores/HistoryManager";
 import ImageNode from "./default/Image";
 
-const INDENT_SIZE = 4;
+// shortcuts
+import { defaultShortcuts } from "./hotkeys/Shortcuts";
 
-const textToDoc = (text) => {
-    if (typeof text !== "string" || !text) {
-        return {
-            type: "doc",
-            content: [{ type: "paragraph" }],
-        };
-    }
+// history
+import { History } from "@tiptap/extension-history";
+import { HistoryManager } from "../../stores/HistoryManager";
 
-    const lines = text.split("\n");
-    const content = [];
-    for (const line of lines) {
-        // Parse image syntax FIRST
-        const imageMatch = line.match(/^!\[\[([^\]|]+)(?:\|(\d+))?\]\]$/);
-        if (imageMatch) {
-            const filename = imageMatch[1];
-            const width = imageMatch[2] ? parseInt(imageMatch[2]) : null;
-            content.push({
-                type: "imageNode",
-                attrs: {
-                    src: null,  // Will be loaded async
-                    alt: filename,
-                    width: width,
-                    filename: filename,
-                },
-            });
-            continue;
-        }
+import settings from "../../../../../../settings.json";
 
-        const checkboxMatch = line.match(/^(\s*)- \[([ x])\]\s?(.*)$/);
-        if (checkboxMatch) {
-            const spaces = checkboxMatch[1].length;
-            const indentLevel = Math.floor(spaces / INDENT_SIZE);
-            const checked = checkboxMatch[2] === "x";
-            const itemText = checkboxMatch[3];
-            content.push({
-                type: "checkboxItem",
-                attrs: { indent: indentLevel, checked: checked },
-                content: itemText ? [{ type: "text", text: itemText }] : [],
-            });
-            continue;
-        }
-
-        const bulletMatch = line.match(/^(\s*)- (.*)$/);
-        if (bulletMatch) {
-            const spaces = bulletMatch[1].length;
-            const indentLevel = Math.floor(spaces / INDENT_SIZE);
-            const itemText = bulletMatch[2];
-            content.push({
-                type: "bulletItem",
-                attrs: { indent: indentLevel },
-                content: itemText ? [{ type: "text", text: itemText }] : [],
-            });
-            continue;
-        }
-
-        content.push({
-            type: "paragraph",
-            content: line ? [{ type: "text", text: line }] : [],
-        });
-    }
-    return {
-        type: "doc",
-        content: content.length > 0 ? content : [{ type: "paragraph" }],
-    };
-};
-
-const docToText = (editor) => {
-    if (!editor || editor.isDestroyed || !editor.state) return "";
-
-    const { doc } = editor.state;
-    const lines = [];
-    doc.forEach((node) => {
-        if (node.type.name === "checkboxItem") {
-            const indent = node.attrs.indent || 0;
-            const checked = node.attrs.checked || false;
-            const spaces = " ".repeat(indent * INDENT_SIZE);
-            const content = node.textContent;
-            const checkmark = checked ? "x" : " ";
-            lines.push(`${spaces}- [${checkmark}] ${content}`);
-        } else if (node.type.name === "bulletItem") {
-            const indent = node.attrs.indent || 0;
-            const spaces = " ".repeat(indent * INDENT_SIZE);
-            const content = node.textContent;
-            lines.push(`${spaces}- ${content}`);
-        } else if (node.type.name === "imageNode") {
-            const { filename, width } = node.attrs;
-            const widthPart = width ? `|${width}` : "";
-            lines.push(`![[${filename}${widthPart}]]`);
-        } else {
-            lines.push(node.textContent);
-        }
-    });
-    return lines.join("\n");
-};
+const INDENT_SIZE = settings.indentSize || 4;
 
 const editor = ({
     content,
@@ -143,7 +60,7 @@ const editor = ({
                     newGroupDelay: 50,
                 }),
             ],
-            content: savedData ? savedData.json : textToDoc(content),
+            content: savedData ? savedData.json : deserialize(content, INDENT_SIZE),
             editorProps: {
                 ...editorProps,
                 attributes: {
@@ -157,7 +74,7 @@ const editor = ({
                             editor.commands.setTextSelection(
                                 savedData.selection
                             );
-                        } catch (e) {}
+                        } catch (e) { }
                     }
                     if (savedData.scroll && editor.view.dom) {
                         setTimeout(() => {
@@ -168,7 +85,7 @@ const editor = ({
                 }
             },
             onUpdate: ({ editor }) => {
-                const text = docToText(editor);
+                const text = serialize(editor, INDENT_SIZE);
                 setContent(text);
                 updateTabContent(text);
 
@@ -204,4 +121,4 @@ const editor = ({
     );
 };
 
-export { editor as default, docToText, textToDoc };
+export { editor as default, serialize, deserialize };

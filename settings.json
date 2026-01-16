@@ -3,5 +3,6 @@
     "developmentSettings": {
         "bypassLocalStorage": false
     },
-    "autoSaveInterval": 100
+    "autoSaveInterval": 100,
+    "indentSize": 4
 }
