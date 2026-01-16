@@ -3,7 +3,7 @@ export const HistoryManager = {
 
     saveHistory(path, editor) {
         if (!path || !editor || editor.isDestroyed || !editor.view) return;
-        
+
         try {
             this.storage.set(path, {
                 json: editor.getJSON(),

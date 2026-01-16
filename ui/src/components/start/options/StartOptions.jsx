@@ -4,7 +4,8 @@ import StartCreateVault from "./StartCreateVault";
 import OptionCard from "./OptionCard";
 
 const StartOptions = () => {
-    const { openVault, createVault, selectVaultFolder, setVaultPath } = useVault();
+    const { openVault, createVault, selectVaultFolder, setVaultPath } =
+        useVault();
     const [showCreateVault, setShowCreateVault] = useState(false);
 
     const handleOpenVault = async () => {

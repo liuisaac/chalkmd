@@ -39,6 +39,14 @@ export const VaultProvider = ({ children }) => {
     const [content, setContent] = useState("");
     const [expandedFolders, setExpandedFolders] = useState(new Set());
 
+    const openVault = async (x) => {
+        OpenVault(x, setVaultPath, setFiles);
+    };
+    const loadVaultContents = async () => {
+        LoadVaultContents(setFiles);
+    };
+
+    // persist vaultPath to localStorage
     useEffect(() => {
         if (vaultPath) {
             localStorage.setItem("vaultPath", vaultPath);
@@ -47,6 +55,7 @@ export const VaultProvider = ({ children }) => {
         }
     }, [vaultPath]);
 
+    // attempt to autoopen vault on startup
     useEffect(() => {
         const savedPath = localStorage.getItem("vaultPath");
         if (savedPath) {
@@ -59,31 +68,40 @@ export const VaultProvider = ({ children }) => {
         }
     }, []);
 
-    const openVault = async (x) => {OpenVault(x, setVaultPath, setFiles);}
-    const loadVaultContents = async () => {LoadVaultContents(setFiles);}
-
-    const value = {
+    const vaultMethods = {
         vaultPath,
         setVaultPath,
         selectVaultFolder,
-        files,
-        setFiles,
-        currentFile,
-        setCurrentFile,
-        content,
-        setContent,
-        expandedFolders,
-        setExpandedFolders,
         loadVaultContents,
         createVault,
         openVault,
+    }
+
+    const fileMethods = {
+        files,
+        setFiles,
+        expandedFolders,
+        setExpandedFolders,
         createFile,
         createFolder,
         renameFile,
         moveFile,
         deleteFile,
         readFile,
+    };
+
+    const assetMethods = {
         readBinaryFile,
+    };
+
+    const value = {
+        currentFile,
+        setCurrentFile,
+        content,
+        setContent,
+        ...vaultMethods,
+        ...fileMethods,
+        ...assetMethods,
     };
 
     return (

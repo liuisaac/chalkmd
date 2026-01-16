@@ -23,7 +23,7 @@ const FileTreeRibbon = () => {
         } catch (error) {
             console.error("Error creating file:", error);
         }
-    }
+    };
 
     return (
         <div className="w-full h-10 flex flex-row items-center justify-center bg-topbar sticky top-0 pl-10">

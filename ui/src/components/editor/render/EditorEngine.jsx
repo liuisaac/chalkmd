@@ -8,7 +8,8 @@ import { HistoryManager } from "../stores/HistoryManager";
 import EditorInfoWidget from "./EditorInfoWidget";
 
 const EditorEngine = () => {
-    const { content, setContent, currentFile, renameFile, readBinaryFile } = useVault();
+    const { content, setContent, currentFile, renameFile, readBinaryFile } =
+        useVault();
     const { updateTabContent } = useTabContext();
     const titleInputRef = useRef(null);
     const [title, setTitle] = useState("");
@@ -35,15 +36,18 @@ const EditorEngine = () => {
     });
 
     useEffect(() => {
-        // Only save history when switching files (not on initial mount)
-        if (lastSavedFileRef.current && lastSavedFileRef.current !== currentFile) {
+        // only save history when switching files (not on mount)
+        if (
+            lastSavedFileRef.current &&
+            lastSavedFileRef.current !== currentFile
+        ) {
             if (editor && !editor.isDestroyed) {
                 HistoryManager.saveHistory(lastSavedFileRef.current, editor);
             }
         }
         lastSavedFileRef.current = currentFile;
 
-        // Cleanup on unmount
+        // cleanup on unmount
         return () => {
             if (editor && !editor.isDestroyed && currentFile) {
                 HistoryManager.saveHistory(currentFile, editor);

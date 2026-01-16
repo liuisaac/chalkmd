@@ -13,7 +13,9 @@ const EditorSidebar = ({ files, onFileClick, setSidebarWidth }) => {
     const [isOpen, setIsOpen] = useState(true);
     const sidebarRef = useRef(null);
 
-    const transitionStyle = isResizing ? "none" : "all 300ms cubic-bezier(0.4, 0, 0.2, 1)";
+    const transitionStyle = isResizing
+        ? "none"
+        : "all 300ms cubic-bezier(0.4, 0, 0.2, 1)";
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -66,9 +68,9 @@ const EditorSidebar = ({ files, onFileClick, setSidebarWidth }) => {
         <>
             <div
                 className="fixed top-0 left-0 z-50 border-b-[1px] border-r-[1px] border-[#e0e0e0] min-w-11"
-                style={{ 
+                style={{
                     width: `${Math.max(width, 44)}px`,
-                    transition: transitionStyle 
+                    transition: transitionStyle,
                 }}
             >
                 <EditorPinned isOpen={isOpen} setIsOpen={setIsOpen} />
@@ -77,34 +79,42 @@ const EditorSidebar = ({ files, onFileClick, setSidebarWidth }) => {
             <div
                 ref={sidebarRef}
                 className="bg-topbar border-r-[1px] border-[#E0E0E0] relative flex flex-col h-screen overflow-hidden"
-                style={{ 
+                style={{
                     width: `${width}px`,
-                    transition: transitionStyle
+                    transition: transitionStyle,
                 }}
             >
-                <div 
-                    style={{ 
-                        width: isOpen ? '100%' : '0px',
-                        minWidth: `${minimumWidth}px`, 
-                        height: '100%',
+                <div
+                    style={{
+                        width: isOpen ? "100%" : "0px",
+                        minWidth: `${minimumWidth}px`,
+                        height: "100%",
                         transition: transitionStyle,
                         opacity: isOpen ? 1 : 0,
                         filter: isOpen ? "blur(0px)" : "blur(4px)",
-                        transform: isOpen ? "translateX(0px)" : "translateX(-10px)"
-                    }} 
+                        transform: isOpen
+                            ? "translateX(0px)"
+                            : "translateX(-10px)",
+                    }}
                     className="flex flex-col"
                 >
                     <EditorRibbon isOpen={isOpen} />
 
-                    <div style={{ paddingTop: "40px" }} className="flex-1 flex flex-col overflow-hidden">
+                    <div
+                        style={{ paddingTop: "40px" }}
+                        className="flex-1 flex flex-col overflow-hidden"
+                    >
                         <FileTreeRibbon />
-                        
+
                         <div className="flex-1 overflow-y-auto overflow-x-hidden w-full custom-sidebar-scrollbar text-left">
                             <div className="flex flex-col min-h-full">
-                                <FileTree files={files} onFileClick={onFileClick} />
+                                <FileTree
+                                    files={files}
+                                    onFileClick={onFileClick}
+                                />
                             </div>
                         </div>
-                        
+
                         <EditorFooter />
                     </div>
                 </div>

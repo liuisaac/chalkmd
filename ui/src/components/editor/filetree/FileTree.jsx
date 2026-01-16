@@ -32,48 +32,59 @@ const FileTree = ({ files, onFileClick }) => {
                 await deleteFile(menu.path);
                 setMenu(null);
             } catch (err) {
-                console.error('Failed to delete file:', err);
+                console.error("Failed to delete file:", err);
             }
         }
     };
 
     const handleMove = async (sourcePath, targetFolderPath) => {
-        const fileName = sourcePath.split('/').pop();
-        const newPath = targetFolderPath ? `${targetFolderPath}/${fileName}` : fileName;
-        
+        const fileName = sourcePath.split("/").pop();
+        const newPath = targetFolderPath
+            ? `${targetFolderPath}/${fileName}`
+            : fileName;
+
         if (sourcePath === newPath) {
             return;
         }
-        
+
         try {
             await moveFile(sourcePath, newPath);
         } catch (err) {
-            console.error('Failed to move file:', err);
+            console.error("Failed to move file:", err);
         }
     };
 
     const handleRootDragOver = (e) => {
-        if (e.target === treeRef.current || e.target.closest('.overflow-y-auto')) {
+        if (
+            e.target === treeRef.current ||
+            e.target.closest(".overflow-y-auto")
+        ) {
             e.preventDefault();
-            setDragState(prev => ({ ...prev, overPath: '' }));
+            setDragState((prev) => ({ ...prev, overPath: "" }));
         }
     };
 
     const handleRootDrop = (e) => {
-        if (e.target === treeRef.current || e.target.closest('.overflow-y-auto')) {
+        if (
+            e.target === treeRef.current ||
+            e.target.closest(".overflow-y-auto")
+        ) {
             e.preventDefault();
             e.stopPropagation();
-            const draggedPath = e.dataTransfer.getData('text/plain');
-            if (draggedPath && draggedPath.includes('/')) {
-                handleMove(draggedPath, '');
+            const draggedPath = e.dataTransfer.getData("text/plain");
+            if (draggedPath && draggedPath.includes("/")) {
+                handleMove(draggedPath, "");
             }
             setDragState({ path: null, overPath: null });
         }
     };
 
     const handleRootDragLeave = (e) => {
-        if (e.target === treeRef.current || e.target.closest('.overflow-y-auto')) {
-            setDragState(prev => ({ ...prev, overPath: null }));
+        if (
+            e.target === treeRef.current ||
+            e.target.closest(".overflow-y-auto")
+        ) {
+            setDragState((prev) => ({ ...prev, overPath: null }));
         }
     };
 

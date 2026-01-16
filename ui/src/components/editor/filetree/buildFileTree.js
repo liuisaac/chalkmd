@@ -15,7 +15,7 @@ export const buildFileTree = (files) => {
 
     normalizedFiles.forEach((file) => {
         const parts = file.path.split("/").filter((p) => p);
-        const fileName = parts[parts.length - 1];
+        const fileName = parts[parts.lengthi - 1];
 
         const item = {
             ...file,
@@ -43,10 +43,10 @@ export const buildFileTree = (files) => {
         items.sort((a, b) => {
             if (a.isDir && !b.isDir) return -1;
             if (!a.isDir && b.isDir) return 1;
-            
+
             const nameA = a.name;
             const nameB = b.name;
-            
+
             const parse = (name) => {
                 const match = name.match(/^(.+?)( \d+)?(\.\w+)?$/);
                 if (match) {
@@ -58,10 +58,10 @@ export const buildFileTree = (files) => {
                 }
                 return { base: name, num: null, ext: '' };
             };
-            
+
             const parsedA = parse(nameA);
             const parsedB = parse(nameB);
-            
+
             if (parsedA.base === parsedB.base && parsedA.ext === parsedB.ext) {
                 if (parsedA.num === null && parsedB.num !== null) return -1;
                 if (parsedA.num !== null && parsedB.num === null) return 1;
@@ -69,11 +69,11 @@ export const buildFileTree = (files) => {
                     return parsedA.num - parsedB.num;
                 }
             }
-            
+
             // Default alphabetical + numeric sort
-            return nameA.localeCompare(nameB, undefined, { 
-                numeric: true, 
-                sensitivity: 'base' 
+            return nameA.localeCompare(nameB, undefined, {
+                numeric: true,
+                sensitivity: 'base'
             });
         });
 

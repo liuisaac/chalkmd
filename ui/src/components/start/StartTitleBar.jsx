@@ -8,7 +8,7 @@ const StartTitleBar = () => {
             style={{ "--wails-draggable": "drag" }}
         >
             <div className="flex-1" />
-            <div 
+            <div
                 className="h-full flex items-center justify-center gap-2 rounded-sm bg-[#e4e4e4]"
                 style={{ "--wails-draggable": "no-drag" }}
             >

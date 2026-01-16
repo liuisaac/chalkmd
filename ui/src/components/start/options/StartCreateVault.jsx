@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { useVault } from '../../../VaultProvider';
+import { useVault } from "../../../VaultProvider";
 
 const StartCreateVault = ({ onBack, onCreate }) => {
     const [vaultName, setVaultName] = useState("");
@@ -67,7 +67,9 @@ const StartCreateVault = ({ onBack, onCreate }) => {
                             Location
                         </span>
                         <span className="block text-[10px] text-gray-500 mb-2">
-                            {vaultLocation ? "Selected: " + vaultLocation : "Pick a place to put your new vault."}
+                            {vaultLocation
+                                ? "Selected: " + vaultLocation
+                                : "Pick a place to put your new vault."}
                         </span>
                     </div>
                     <button
@@ -91,4 +93,4 @@ const StartCreateVault = ({ onBack, onCreate }) => {
     );
 };
 
-export default StartCreateVault
+export default StartCreateVault;

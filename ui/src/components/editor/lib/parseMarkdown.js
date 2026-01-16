@@ -25,7 +25,7 @@ export const parseMarkdown = (text) => {
         const line = lines[i];
         const listMatch = line.match(/^- (.+)$/);
         const numberedMatch = line.match(/^\d+\.\s(.+)$/);
-        
+
         if (listMatch) {
             if (!inList) {
                 result.push('<ul class="list-disc ml-6 my-2 space-y-1">');
@@ -46,7 +46,7 @@ export const parseMarkdown = (text) => {
             result.push(line);
         }
     }
-    
+
     if (inList) {
         result.push(inList === 'numbered' ? '</ol>' : '</ul>');
     }

@@ -38,7 +38,7 @@ const EditorTab = ({
             pushToHistory(currentFile);
             setCurrentContent(currentFile);
         } else if (isActive && !currentFile && !isNavigating) {
-            setCurrentContent("New Tab")
+            setCurrentContent("New Tab");
         }
     }, [currentFile, isActive, isNavigating]);
 
@@ -100,9 +100,7 @@ const EditorTab = ({
                 {showLabel && (
                     <span
                         className={`relative z-10 text-[12px] ${
-                            isActive
-                                ? "text-[#5C5C5C]"
-                                : "text-[#acacac]"
+                            isActive ? "text-[#5C5C5C]" : "text-[#acacac]"
                         } truncate flex-1 mr-1 select-none`}
                     >
                         {currentContent

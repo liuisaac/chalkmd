@@ -5,7 +5,7 @@ import { useVault } from "../../../VaultProvider";
 
 const DragPreview = ({ x, y, path, target }) => {
     const fileName = path.split("/").pop().split(".").slice(0, -1).join(".");
-    const targetName = target === '' ? 'Vault' : `"${target.split('/').pop()}"`;
+    const targetName = target === "" ? "Vault" : `"${target.split("/").pop()}"`;
 
     return ReactDOM.createPortal(
         <div
@@ -17,9 +17,13 @@ const DragPreview = ({ x, y, path, target }) => {
         >
             <div className="flex flex-row items-center gap-1">
                 <FileIcon size={16} className="text-[#BDBDBD]" />
-                <div className="font-semibold text-white tracking-wide">{fileName}</div>
+                <div className="font-semibold text-white tracking-wide">
+                    {fileName}
+                </div>
             </div>
-            <div className="font-semibold text-[#BDBDBD] truncate mt-1">Move into {targetName}</div>
+            <div className="font-semibold text-[#BDBDBD] truncate mt-1">
+                Move into {targetName}
+            </div>
         </div>,
         document.body
     );
@@ -37,7 +41,7 @@ const FileTreeItem = memo(
         onMove,
         dragState,
         onDragStateChange,
-        parentPath = '',
+        parentPath = "",
         isInDropTargetFolder = false,
     }) => {
         const [isExpanded, setIsExpanded] = useState(false);
@@ -51,10 +55,13 @@ const FileTreeItem = memo(
         const isContextActive = activeContextPath === item.path;
         const isSelected = !item.isDir && item.path === currentFile;
         const isDragging = dragState?.path === item.path;
-        
+
         const dropTargetPath = item.isDir ? item.path : parentPath;
-        const isOverRoot = dragState?.overPath === '';
-        const isThisDropTarget = dragState?.overPath === dropTargetPath && dragState?.path !== item.path && !isOverRoot;
+        const isOverRoot = dragState?.overPath === "";
+        const isThisDropTarget =
+            dragState?.overPath === dropTargetPath &&
+            dragState?.path !== item.path &&
+            !isOverRoot;
         const isDropTarget = isThisDropTarget && item.isDir;
 
         const displayName = useMemo(() => {
@@ -155,7 +162,10 @@ const FileTreeItem = memo(
         const handleDragOver = (e) => {
             e.preventDefault();
             e.stopPropagation();
-            onDragStateChange((prev) => ({ ...prev, overPath: dropTargetPath }));
+            onDragStateChange((prev) => ({
+                ...prev,
+                overPath: dropTargetPath,
+            }));
             e.dataTransfer.dropEffect = "move";
         };
 
@@ -185,10 +195,13 @@ const FileTreeItem = memo(
             }
         };
 
-        const shouldHighlightBackground = (isDropTarget || isInDropTargetFolder || isThisDropTarget) && !isOverRoot;
+        const shouldHighlightBackground =
+            (isDropTarget || isInDropTargetFolder || isThisDropTarget) &&
+            !isOverRoot;
         const shouldHighlightText = isDropTarget && item.isDir;
-        
-        const currentTarget = dragState?.overPath !== null ? dragState?.overPath : dropTargetPath;
+
+        const currentTarget =
+            dragState?.overPath !== null ? dragState?.overPath : dropTargetPath;
 
         return (
             <div className="flex flex-col w-full">
@@ -267,7 +280,10 @@ const FileTreeItem = memo(
                                     dragState={dragState}
                                     onDragStateChange={onDragStateChange}
                                     parentPath={item.path}
-                                    isInDropTargetFolder={isDropTarget || (isInDropTargetFolder && !isOverRoot)}
+                                    isInDropTargetFolder={
+                                        isDropTarget ||
+                                        (isInDropTargetFolder && !isOverRoot)
+                                    }
                                 />
                             ))}
                         </div>

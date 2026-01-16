@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { useVault } from "../../../VaultProvider";
 
-
 const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
     const menuRef = useRef(null);
     const [pos, setPos] = useState({ top: y, left: x, visibility: "hidden" });
@@ -77,11 +76,11 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
             <div
                 ref={menuRef}
                 className="fixed z-[9999] bg-[#F2F2F2] border border-gray-300 shadow-xl rounded-md py-1 min-w-[210px] text-[12px] pointer-events-auto select-none transition-opacity duration-75"
-                style={{ 
-                    top: pos.top, 
-                    left: pos.left, 
+                style={{
+                    top: pos.top,
+                    left: pos.left,
                     visibility: pos.visibility,
-                    opacity: pos.visibility === "visible" ? 1 : 0 
+                    opacity: pos.visibility === "visible" ? 1 : 0,
                 }}
             >
                 <div className={itemClass}>
@@ -135,7 +134,9 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
 
                 <div className={itemClass}>
                     <ExternalLink size={iconSize} className="text-gray-500" />
-                    <span className={`${labelClass}`}>Show in system explorer</span>
+                    <span className={`${labelClass}`}>
+                        Show in system explorer
+                    </span>
                 </div>
 
                 <div className={dividerClass} />
@@ -155,7 +156,10 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
                     <Pencil size={iconSize} className="text-gray-500" />
                     <span className={`${labelClass}`}>Rename...</span>
                 </div>
-                <div className={`${itemClass} text-red-500 hover:bg-red-100`} onClick={handleDeleteClick}>
+                <div
+                    className={`${itemClass} text-red-500 hover:bg-red-100`}
+                    onClick={handleDeleteClick}
+                >
                     <Trash2 size={iconSize} className="text-red-400" />
                     <span className="text-red-400">Delete</span>
                 </div>

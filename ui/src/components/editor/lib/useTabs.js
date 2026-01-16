@@ -5,12 +5,12 @@ import { useVault } from "../../../VaultProvider";
 export const useTabs = () => {
     const { setCurrentFile, setContent, readFile } = useVault();
     const [tabs, setTabs] = React.useState([
-        { 
-            id: 1, 
-            file: null, 
-            content: "", 
+        {
+            id: 1,
+            file: null,
+            content: "",
             history: new History(50),
-            editorState: null 
+            editorState: null
         },
     ]);
     const [activeTabId, setActiveTabId] = React.useState(1);
@@ -106,9 +106,9 @@ export const useTabs = () => {
                 return currentTabs.map((t) => {
                     if (t.id === activeTabId) {
                         t.history.push(filePath);
-                        return { 
-                            ...t, 
-                            file: filePath, 
+                        return {
+                            ...t,
+                            file: filePath,
                             content: fileContent,
                             editorState: null
                         };

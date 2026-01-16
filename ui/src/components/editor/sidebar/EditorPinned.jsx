@@ -8,9 +8,10 @@ import {
 
 const EditorPinned = ({ isOpen, setIsOpen }) => {
     const size = 18;
-    
+
     return (
-        <div className="bg-midbar text-gray-500 w-full min-w-11 h-10 z-50 top-0 sticky overflow-hidden"
+        <div
+            className="bg-midbar text-gray-500 w-full min-w-11 h-10 z-50 top-0 sticky overflow-hidden"
             style={{ "--wails-draggable": "drag" }}
         >
             <div className="flex flex-row justify-start items-center gap-5 pt-2.5 pl-3 w-full">
@@ -25,10 +26,10 @@ const EditorPinned = ({ isOpen, setIsOpen }) => {
                     )}
                 </div>
 
-                <div 
+                <div
                     className={`flex flex-row gap-5 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                        isOpen 
-                            ? "opacity-100 translate-x-0 visible" 
+                        isOpen
+                            ? "opacity-100 translate-x-0 visible"
                             : "opacity-0 -translate-x-4 invisible"
                     }`}
                 >
