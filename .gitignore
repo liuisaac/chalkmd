@@ -1,5 +1,10 @@
 node_modules
+
+build/bin/chalkmd-dev.exe 
+
 ui/package.json.md5
 ui/dist
 ui/wailsjs
 chalkmd
+
+
