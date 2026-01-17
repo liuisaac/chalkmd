@@ -30,6 +30,7 @@ const editor = ({
     updateTabContent,
     filePath,
     readBinaryFile,
+    writeBinaryFile,
     editorProps = {},
 }) => {
     const savedData = HistoryManager.getHistory(filePath);
@@ -43,7 +44,7 @@ const editor = ({
                         return { class: { default: null } };
                     },
                     addProseMirrorPlugins() {
-                        return [plugins(this.editor)];
+                        return [plugins(this.editor, writeBinaryFile)];
                     },
                     addKeyboardShortcuts() {
                         return defaultShortcuts(this.editor);

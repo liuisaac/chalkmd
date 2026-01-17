@@ -1,8 +1,9 @@
 import { Node } from "@tiptap/core";
 import { Plugin, PluginKey, TextSelection } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "prosemirror-view";
+import settings from "../../../../../../../settings";
 
-const IMAGES_FOLDER = "Z Pasted Images\\";
+const IMAGES_FOLDER = settings.imageFolder || "";
 
 async function loadImage(filename, readBinaryFile) {
     try {

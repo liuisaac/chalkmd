@@ -17,7 +17,7 @@ import {
     selectVaultFolder,
 } from "./fs/vault";
 
-import { readBinaryFile } from "./fs/assets";
+import { readBinaryFile, writeBinaryFile } from "./fs/assets";
 
 // settings, eventually extensions
 import settings from "../../settings.json";
@@ -92,6 +92,7 @@ export const VaultProvider = ({ children }) => {
 
     const assetMethods = {
         readBinaryFile,
+        writeBinaryFile,
     };
 
     const value = {

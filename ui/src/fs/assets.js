@@ -1,5 +1,6 @@
 import {
     ReadBinaryFile,
+    WriteBinaryFile
 } from "../../wailsjs/go/internal/App";
 
 const readBinaryFile = async (path) => {
@@ -12,4 +13,14 @@ const readBinaryFile = async (path) => {
     }
 };
 
-export { readBinaryFile };
+const writeBinaryFile = async (path, data) => {
+    try {
+        const result = await WriteBinaryFile(path, data);
+        return result;
+    } catch (err) {
+        console.error("Failed to write binary file:", err);
+        throw err;
+    }
+};
+
+export { readBinaryFile, writeBinaryFile };

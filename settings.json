@@ -4,5 +4,6 @@
         "bypassLocalStorage": false
     },
     "autoSaveInterval": 100,
-    "indentSize": 4
+    "indentSize": 4,
+    "imageFolder": "Z Pasted Images\\"
 }

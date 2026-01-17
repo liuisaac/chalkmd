@@ -3,8 +3,11 @@ import { DecorationSet } from "@tiptap/pm/view";
 import boldHandler from "../default/Bold";
 import headerHandler from "../default/Header";
 import italicHandler from "../default/Italic";
+import { handleImagePaste } from "./ClipboardImagePlugin";
 
-const plugins = (editor) => {
+const plugins = (editor, writeBinaryFile) => {
+  console.log("PluginEntry: writeBinaryFile is", writeBinaryFile ? "defined" : "UNDEFINED");
+  
   return new Plugin({
     props: {
       decorations: (state) => {
@@ -26,6 +29,8 @@ const plugins = (editor) => {
 
         return DecorationSet.create(doc, decorations);
       },
+
+      handlePaste: handleImagePaste(writeBinaryFile),
     },
   });
 };

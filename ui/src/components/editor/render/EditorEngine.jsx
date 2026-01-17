@@ -8,7 +8,7 @@ import { HistoryManager } from "../stores/HistoryManager";
 import EditorInfoWidget from "./EditorInfoWidget";
 
 const EditorEngine = () => {
-    const { content, setContent, currentFile, renameFile, readBinaryFile } =
+    const { content, setContent, currentFile, renameFile, readBinaryFile, writeBinaryFile } =
         useVault();
     const { updateTabContent } = useTabContext();
     const titleInputRef = useRef(null);
@@ -21,6 +21,7 @@ const EditorEngine = () => {
         updateTabContent,
         filePath: currentFile,
         readBinaryFile,
+        writeBinaryFile,
         editorProps: {
             handleKeyDown: (view, event) => {
                 if (event.key === "ArrowUp") {
