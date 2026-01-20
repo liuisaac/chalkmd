@@ -39,54 +39,5 @@ export const buildFileTree = (files) => {
         }
     });
 
-    const sortItems = (items) => {
-        items.sort((a, b) => {
-            if (a.isDir && !b.isDir) return -1;
-            if (!a.isDir && b.isDir) return 1;
-
-            const nameA = a.name;
-            const nameB = b.name;
-
-            const parse = (name) => {
-                if (!name || typeof name !== 'string') {
-                    return { name: name || 'Unknown', number: 0 };
-                }
-                const match = name.match(/^(.+?)( \d+)?(\.\w+)?$/);
-                if (match) {
-                    return {
-                        base: match[1],
-                        num: match[2] ? parseInt(match[2].trim()) : null,
-                        ext: match[3] || ''
-                    };
-                }
-                return { base: name, num: null, ext: '' };
-            };
-
-            const parsedA = parse(nameA);
-            const parsedB = parse(nameB);
-
-            if (parsedA.base === parsedB.base && parsedA.ext === parsedB.ext) {
-                if (parsedA.num === null && parsedB.num !== null) return -1;
-                if (parsedA.num !== null && parsedB.num === null) return 1;
-                if (parsedA.num !== null && parsedB.num !== null) {
-                    return parsedA.num - parsedB.num;
-                }
-            }
-
-            // Default alphabetical + numeric sort
-            return nameA.localeCompare(nameB, undefined, {
-                numeric: true,
-                sensitivity: 'base'
-            });
-        });
-
-        items.forEach((item) => {
-            if (item.children && item.children.length > 0) {
-                sortItems(item.children);
-            }
-        });
-    };
-
-    sortItems(root);
     return root;
 };

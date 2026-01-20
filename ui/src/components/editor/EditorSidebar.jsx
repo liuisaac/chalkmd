@@ -11,6 +11,8 @@ const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
     const [width, setWidth] = useState(minimumWidth);
     const [isResizing, setIsResizing] = useState(false);
     const [isOpen, setIsOpen] = useState(true);
+    const [sortKey, setSortKey] = useState("name-asc");
+
     const sidebarRef = useRef(null);
 
     const transitionStyle = isResizing
@@ -104,12 +106,13 @@ const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
                         style={{ paddingTop: "40px" }}
                         className="flex-1 flex flex-col overflow-hidden"
                     >
-                        <FileTreeRibbon />
+                        <FileTreeRibbon sortKey={sortKey} setSortKey={setSortKey} />
 
                         <div className="flex-1 overflow-y-auto overflow-x-hidden w-full custom-sidebar-scrollbar text-left">
                             <div className="flex flex-col min-h-full">
                                 <FileTree
                                     onFileClick={onFileClick}
+                                    sortKey={sortKey}
                                 />
                             </div>
                         </div>

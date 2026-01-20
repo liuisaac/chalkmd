@@ -1,10 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import FileTreeContextMenu from "./FileTreeContextMenu";
 import FileTreeItem from "./FileTreeItem";
 import { buildFileTree } from "./buildFileTree";
 import { useVault } from "../../../VaultProvider";
+import { sortItems } from "./sortFileTree";
 
-const FileTree = ({ onFileClick }) => {
+const FileTree = ({ onFileClick, sortKey }) => {
     const [menu, setMenu] = useState(null);
     const [editingPath, setEditingPath] = useState(null);
     const [dragState, setDragState] = useState({ path: null, overPath: null });
@@ -88,7 +89,12 @@ const FileTree = ({ onFileClick }) => {
         }
     };
 
-    const fileTree = buildFileTree(files);
+    const [fileTree, setFileTree] = useState(sortItems(buildFileTree(files), "name-asc"));
+
+    useEffect(() => {
+        const tree = sortItems(buildFileTree(files), sortKey);
+        setFileTree(tree);
+    }, [files, sortKey]);
 
     if (fileTree.length === 0) {
         return (

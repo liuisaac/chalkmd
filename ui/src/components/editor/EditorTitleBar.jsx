@@ -1,6 +1,6 @@
-import Maximize from "../icons/Maximize";
-import Minimize from "../icons/Minimize";
-import Exit from "../icons/Exit";
+import Maximize from "../ui/Maximize";
+import Minimize from "../ui/Minimize";
+import Exit from "../ui/Exit";
 import EditorTabBar from "../editor/tab/EditorTabBar";
 import { useTabContext } from "../../TabProvider";
 

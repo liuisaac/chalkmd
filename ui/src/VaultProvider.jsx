@@ -2,11 +2,11 @@ import { useState, useEffect, createContext, useContext } from "react";
 
 // fs handlers
 import {
-    createFile,
-    createFolder,
-    renameFile,
-    moveFile,
-    deleteFile,
+    createFile as CreateFile,
+    createFolder as CreateFolder,
+    renameFile as RenameFile,
+    moveFile as MoveFile,
+    deleteFile as DeleteFile,
     readFile,
 } from "./fs/file";
 
@@ -42,8 +42,29 @@ export const VaultProvider = ({ children }) => {
     const openVault = async (x) => {
         OpenVault(x, setVaultPath, setFiles);
     };
+
     const loadVaultContents = async () => {
         LoadVaultContents(setFiles);
+    };
+
+    const createFile = async (x) => {
+        CreateFile(x, files, vaultPath, setCurrentFile, loadVaultContents);
+    };
+
+    const createFolder = async (x) => {
+        CreateFolder(x, files, loadVaultContents);
+    };
+
+    const renameFile = async (oldPath, newPath) => {
+        RenameFile(oldPath, newPath, loadVaultContents);
+    };
+
+    const moveFile = async (oldPath, newPath) => {
+        MoveFile(oldPath, newPath, loadVaultContents);
+    };
+
+    const deleteFile = async (x) => {
+        DeleteFile(x, loadVaultContents);
     };
 
     // persist vaultPath to localStorage
@@ -75,7 +96,7 @@ export const VaultProvider = ({ children }) => {
         loadVaultContents,
         createVault,
         openVault,
-    }
+    };
 
     const fileMethods = {
         files,

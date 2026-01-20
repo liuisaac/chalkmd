@@ -1,4 +1,4 @@
-import Logo from "../icons/Logo.jsx";
+import Logo from "../ui/Logo.jsx";
 import release from "../../../../release.json";
 
 const StartLogo = () => {

@@ -7,7 +7,7 @@ import {
     MoveFile,
 } from "../../wailsjs/go/internal/App";
 
-const createFile = async (fileName) => {
+const createFile = async (fileName, files, vaultPath, setCurrentFile, loadVaultContents) => {
     try {
         let nameToCreate = fileName;
 
@@ -36,6 +36,7 @@ const createFile = async (fileName) => {
         await loadVaultContents();
 
         const relativePath = fullPath.substring(vaultPath.length + 1);
+        setCurrentFile(relativePath);
         return relativePath;
     } catch (error) {
         console.error("Error creating file:", error);
@@ -43,22 +44,24 @@ const createFile = async (fileName) => {
     }
 };
 
-const createFolder = async (folderName) => {
+const createFolder = async (folderName, files, loadVaultContents) => {
     try {
         let nameToCreate = folderName;
 
         if (!nameToCreate) {
             const existingNames = files.map((f) => f.name.toLowerCase());
-            if (!existingNames.includes("Untitled")) {
+            console.log("Existing folder names:", existingNames);
+            if (!existingNames.includes("untitled")) {
                 nameToCreate = "Untitled";
             } else {
                 let counter = 1;
-                while (existingNames.includes(`Untitled ${counter}`)) {
+                while (existingNames.includes(`untitled ${counter}`)) {
                     counter++;
                 }
                 nameToCreate = `Untitled ${counter}`;
             }
         }
+        console.log("Creating folder with name:", nameToCreate);
 
         await CreateFolder(nameToCreate);
         await loadVaultContents();
@@ -68,9 +71,10 @@ const createFolder = async (folderName) => {
     }
 };
 
-const renameFile = async (oldPath, newPath) => {
+const renameFile = async (oldPath, newPath, loadVaultContents) => {
     try {
         await RenameFile(oldPath, newPath);
+        console.log("Renamed file from", oldPath, "to", newPath);
         await loadVaultContents();
     } catch (error) {
         console.error("Error renaming file:", error);
@@ -78,7 +82,7 @@ const renameFile = async (oldPath, newPath) => {
     }
 };
 
-const moveFile = async (oldPath, newPath) => {
+const moveFile = async (oldPath, newPath, loadVaultContents) => {
     try {
         await MoveFile(oldPath, newPath);
         await loadVaultContents();
@@ -88,7 +92,7 @@ const moveFile = async (oldPath, newPath) => {
     }
 };
 
-const deleteFile = async (path) => {
+const deleteFile = async (path, loadVaultContents) => {
     try {
         await DeleteFile(path);
         await loadVaultContents();
