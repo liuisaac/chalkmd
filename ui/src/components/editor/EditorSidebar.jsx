@@ -4,6 +4,7 @@ import EditorRibbon from "./sidebar/EditorRibbon";
 import EditorFooter from "./sidebar/EditorFooter";
 import FileTree from "./filetree/FileTree";
 import FileTreeRibbon from "./filetree/FileTreeRibbon";
+import { PINNED_STATES } from "../../constants/pinnedStates";
 
 const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
     const minimumWidth = 235;
@@ -15,6 +16,7 @@ const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
     const [revealedFile, setRevealedFile] = useState(null);
     const [expandAll, setExpandAll] = useState(false);
     const [closeAll, setCloseAll] = useState(false);
+    const [active, setActive] = useState(PINNED_STATES.FOLDER);
 
     const sidebarRef = useRef(null);
 
@@ -95,7 +97,12 @@ const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
                     transition: transitionStyle,
                 }}
             >
-                <EditorPinned isOpen={isOpen} setIsOpen={setIsOpen} />
+                <EditorPinned
+                    isOpen={isOpen}
+                    setIsOpen={setIsOpen}
+                    active={active}
+                    setActive={setActive}
+                />
             </div>
 
             <div
@@ -126,27 +133,49 @@ const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
                         style={{ paddingTop: "40px" }}
                         className="flex-1 flex flex-col overflow-hidden"
                     >
-                        <FileTreeRibbon
-                            sortKey={sortKey}
-                            setSortKey={setSortKey}
-                            revealFile={revealFile}
-                            setExpandAll={setExpandAll}
-                            setCloseAll={setCloseAll}
-                        />
-
-                        <div className="flex-1 overflow-y-auto overflow-x-hidden w-full custom-sidebar-scrollbar text-left">
-                            <div className="flex flex-col min-h-full">
-                                <FileTree
-                                    onFileClick={onFileClick}
+                        {active === PINNED_STATES.FOLDER && (
+                            <>
+                                <FileTreeRibbon
                                     sortKey={sortKey}
-                                    revealedFile={revealedFile}
-                                    setRevealedFile={setRevealedFile}
-                                    expandAll={expandAll}
-                                    closeAll={closeAll}
+                                    setSortKey={setSortKey}
+                                    revealFile={revealFile}
+                                    setExpandAll={setExpandAll}
+                                    setCloseAll={setCloseAll}
                                 />
-                            </div>
-                        </div>
 
+                                <div className="flex-1 overflow-y-auto overflow-x-hidden w-full custom-sidebar-scrollbar text-left">
+                                    <div className="flex flex-col min-h-full">
+                                        <FileTree
+                                            onFileClick={onFileClick}
+                                            sortKey={sortKey}
+                                            revealedFile={revealedFile}
+                                            setRevealedFile={setRevealedFile}
+                                            expandAll={expandAll}
+                                            closeAll={closeAll}
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {
+                            active === PINNED_STATES.SEARCH && (
+                                <div className="flex-1 flex items-center justify-center">
+                                    <span className="text-gray-500">
+                                        Search Panel Coming Soon!
+                                    </span>
+                                </div>
+                            )
+                        }
+                        {
+                            active === PINNED_STATES.BOOKMARK && (
+                                <div className="flex-1 flex items-center justify-center">
+                                    <span className="text-gray-500">
+                                        Bookmark Panel Coming Soon!
+                                    </span>
+                                </div>
+                            )
+                        }
                         <EditorFooter />
                     </div>
                 </div>

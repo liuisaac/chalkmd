@@ -19,6 +19,8 @@ import {
 
 import { readBinaryFile, writeBinaryFile } from "./fs/assets";
 
+import { spawnInstance } from "./fs/window";
+
 // settings, eventually extensions
 import settings from "../../settings.json";
 
@@ -28,8 +30,6 @@ export const VaultProvider = ({ children }) => {
         settings.developmentSettings?.bypassLocalStorage || false;
 
     const [vaultPath, setVaultPath] = useState(() => {
-        console.log("isDevelopment:", isDevelopment);
-        console.log("isTestingStartup:", isTestingStartup);
         if (isDevelopment && isTestingStartup) {
             return null;
         }
@@ -73,6 +73,14 @@ export const VaultProvider = ({ children }) => {
     useEffect(() => {
         if (vaultPath) {
             localStorage.setItem("vaultPath", vaultPath);
+
+            const history = JSON.parse(localStorage.getItem("vaultHistory")) || [];
+            const existingIndex = history.indexOf(vaultPath);
+            if (existingIndex > -1) {
+                history.splice(existingIndex, 1);
+            }
+            history.unshift(vaultPath);
+            localStorage.setItem("vaultHistory", JSON.stringify(history));
         } else {
             localStorage.removeItem("vaultPath");
         }
@@ -130,6 +138,7 @@ export const VaultProvider = ({ children }) => {
         setCurrentFile,
         content,
         setContent,
+        spawnInstance,
         ...vaultMethods,
         ...fileMethods,
         ...assetMethods,
