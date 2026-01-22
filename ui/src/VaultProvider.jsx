@@ -28,6 +28,8 @@ export const VaultProvider = ({ children }) => {
         settings.developmentSettings?.bypassLocalStorage || false;
 
     const [vaultPath, setVaultPath] = useState(() => {
+        console.log("isDevelopment:", isDevelopment);
+        console.log("isTestingStartup:", isTestingStartup);
         if (isDevelopment && isTestingStartup) {
             return null;
         }
@@ -40,31 +42,31 @@ export const VaultProvider = ({ children }) => {
     const [expandedFolders, setExpandedFolders] = useState(new Set());
 
     const openVault = async (x) => {
-        OpenVault(x, setVaultPath, setFiles);
+        await OpenVault(x, setVaultPath, setFiles);
     };
 
     const loadVaultContents = async () => {
-        LoadVaultContents(setFiles);
+        await LoadVaultContents(setFiles);
     };
 
     const createFile = async (x) => {
-        CreateFile(x, files, vaultPath, setCurrentFile, loadVaultContents);
+        await CreateFile(x, files, vaultPath, setCurrentFile, loadVaultContents);
     };
 
     const createFolder = async (x) => {
-        CreateFolder(x, files, loadVaultContents);
+        await CreateFolder(x, files, loadVaultContents);
     };
 
     const renameFile = async (oldPath, newPath) => {
-        RenameFile(oldPath, newPath, loadVaultContents);
+        await RenameFile(oldPath, newPath, loadVaultContents);
     };
 
     const moveFile = async (oldPath, newPath) => {
-        MoveFile(oldPath, newPath, loadVaultContents);
+        await MoveFile(oldPath, newPath, loadVaultContents);
     };
 
     const deleteFile = async (x) => {
-        DeleteFile(x, loadVaultContents);
+        await DeleteFile(x, loadVaultContents);
     };
 
     // persist vaultPath to localStorage
@@ -77,16 +79,23 @@ export const VaultProvider = ({ children }) => {
     }, [vaultPath]);
 
     // attempt to autoopen vault on startup
+    
     useEffect(() => {
-        const savedPath = localStorage.getItem("vaultPath");
-        if (savedPath) {
-            openVault(savedPath)
-                .then(() => loadVaultContents())
-                .catch((error) => {
-                    console.error("Error loading saved vault:", error);
+        const initializeVault = async () => {
+            const savedPath = localStorage.getItem("vaultPath");
+            if (savedPath) {
+                try {
+                    console.log("Auto-opening saved vault at:", savedPath);
+                    await openVault(savedPath);
+                    await loadVaultContents();
+                } catch (error) {
+                    console.error("Error opening saved vault:", error);
                     setVaultPath(null);
-                });
-        }
+                }
+            }
+        };
+        
+        initializeVault();
     }, []);
 
     const vaultMethods = {

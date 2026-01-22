@@ -1,21 +1,21 @@
 import {
     ArrowUpNarrowWide,
+    ChevronsDownUp,
+    ChevronsUpDown,
     FolderPlus,
-    ListChevronsDownUp,
-    ListChevronsUpDown,
-    Maximize,
+    GalleryVertical,
     SquarePenIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { useVault } from "../../../VaultProvider";
 import FileTreeSortContextMenu from "./FileTreeSortContextMenu";
 
-const FileTreeRibbon = ({ sortKey, setSortKey }) => {
+const FileTreeRibbon = ({ sortKey, setSortKey, revealFile, setExpandAll, setCloseAll }) => {
     const size = 25;
-    const [expandAll, setExpandAll] = useState(false);
+    const [expandAll, setExpandAllState] = useState(false);
     const [sortContext, setSortContext] = useState(false);
     const [sortButtonPos, setSortButtonPos] = useState({ x: 0, y: 0 });
-    const { createFile, createFolder } = useVault();
+    const { createFile, createFolder, currentFile } = useVault();
     const iconStyle =
         "inline-block hover:bg-black/5 rounded-sm p-1 cursor-pointer transition-colors";
 
@@ -25,6 +25,15 @@ const FileTreeRibbon = ({ sortKey, setSortKey }) => {
             console.log("File created at path:", path);
         } catch (error) {
             console.error("Error creating file:", error);
+        }
+    };
+
+    const handleRevealFile = async () => {
+        try {
+            revealFile(currentFile);
+            console.log("Revealing file...");
+        } catch (error) {
+            console.error("Error revealing file:", error);
         }
     };
 
@@ -62,15 +71,14 @@ const FileTreeRibbon = ({ sortKey, setSortKey }) => {
                     />
                 </div>
 
-                <Maximize size={size} className={iconStyle} />
+                <GalleryVertical size={size} className={iconStyle} onClick={handleRevealFile} />
                 <div
-                    onClick={() => setExpandAll(!expandAll)}
-                    className="cursor-pointer"
+                    className="cursor-pointer" onClick={() => {setExpandAllState(!expandAll)}}
                 >
                     {expandAll ? (
-                        <ListChevronsUpDown size={size} className={iconStyle} />
+                        <ChevronsUpDown size={size} className={iconStyle} onClick={() => setCloseAll(true)} />
                     ) : (
-                        <ListChevronsDownUp size={size} className={iconStyle} />
+                        <ChevronsDownUp size={size} className={iconStyle} onClick={() => setExpandAll(true)} />
                     )}
                 </div>
             </div>

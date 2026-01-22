@@ -12,12 +12,20 @@ const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
     const [isResizing, setIsResizing] = useState(false);
     const [isOpen, setIsOpen] = useState(true);
     const [sortKey, setSortKey] = useState("name-asc");
+    const [revealedFile, setRevealedFile] = useState(null);
+    const [expandAll, setExpandAll] = useState(false);
+    const [closeAll, setCloseAll] = useState(false);
 
     const sidebarRef = useRef(null);
 
     const transitionStyle = isResizing
         ? "none"
         : "all 300ms cubic-bezier(0.4, 0, 0.2, 1)";
+
+    const revealFile = (file) => {
+        console.log("Revealing file:", file);
+        setRevealedFile(file);
+    };
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -66,6 +74,18 @@ const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
         }
     }, [isOpen, setSidebarWidth]);
 
+    useEffect(() => {
+        if (expandAll) {
+            setCloseAll(false);
+        }
+    }, [expandAll]);
+
+    useEffect(() => {
+        if (closeAll) {
+            setExpandAll(false);
+        }
+    }, [closeAll]);
+
     return (
         <>
             <div
@@ -106,13 +126,23 @@ const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
                         style={{ paddingTop: "40px" }}
                         className="flex-1 flex flex-col overflow-hidden"
                     >
-                        <FileTreeRibbon sortKey={sortKey} setSortKey={setSortKey} />
+                        <FileTreeRibbon
+                            sortKey={sortKey}
+                            setSortKey={setSortKey}
+                            revealFile={revealFile}
+                            setExpandAll={setExpandAll}
+                            setCloseAll={setCloseAll}
+                        />
 
                         <div className="flex-1 overflow-y-auto overflow-x-hidden w-full custom-sidebar-scrollbar text-left">
                             <div className="flex flex-col min-h-full">
                                 <FileTree
                                     onFileClick={onFileClick}
                                     sortKey={sortKey}
+                                    revealedFile={revealedFile}
+                                    setRevealedFile={setRevealedFile}
+                                    expandAll={expandAll}
+                                    closeAll={closeAll}
                                 />
                             </div>
                         </div>

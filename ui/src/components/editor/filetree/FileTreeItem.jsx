@@ -43,6 +43,10 @@ const FileTreeItem = memo(
         onDragStateChange,
         parentPath = "",
         isInDropTargetFolder = false,
+        revealedFile,
+        setRevealedFile,
+        expandAll,
+        closeAll,
     }) => {
         const [isExpanded, setIsExpanded] = useState(false);
         const [tempName, setTempName] = useState(item.name);
@@ -69,22 +73,6 @@ const FileTreeItem = memo(
             const lastDot = item.name.lastIndexOf(".");
             return lastDot === -1 ? item.name : item.name.slice(0, lastDot);
         }, [item.isDir, item.name]);
-
-        useEffect(() => {
-            if (isEditing) {
-                setTempName(item.name);
-                const input = inputRef.current;
-                if (input) {
-                    input.focus();
-                    const dotIndex = item.name.lastIndexOf(".");
-                    const selectEnd =
-                        item.isDir || dotIndex === -1
-                            ? item.name.length
-                            : dotIndex;
-                    input.setSelectionRange(0, selectEnd);
-                }
-            }
-        }, [isEditing, item.name, item.isDir]);
 
         const handleSubmitRename = useCallback(async () => {
             if (!isEditing) return;
@@ -202,6 +190,45 @@ const FileTreeItem = memo(
 
         const currentTarget =
             dragState?.overPath !== null ? dragState?.overPath : dropTargetPath;
+        
+        useEffect(() => {
+            if (isEditing) {
+                setTempName(item.name);
+                const input = inputRef.current;
+                if (input) {
+                    input.focus();
+                    const dotIndex = item.name.lastIndexOf(".");
+                    const selectEnd =
+                        item.isDir || dotIndex === -1
+                            ? item.name.length
+                            : dotIndex;
+                    input.setSelectionRange(0, selectEnd);
+                }
+            }
+        }, [isEditing, item.name, item.isDir]);
+
+
+        useEffect(() => {
+            if (revealedFile) {
+                if (item.isDir && revealedFile.startsWith(item.path + "/") && !expandAll && !closeAll) {
+                    setIsExpanded(true);
+                } else if (!item.isDir && revealedFile === item.path) {
+                    setRevealedFile(null);
+                }
+            }
+        }, [revealedFile, item.isDir, item.path, setRevealedFile]);
+
+        useEffect(() => {
+            if (expandAll) {
+                setIsExpanded(true);
+            }
+        }, [expandAll]);
+
+        useEffect(() => {
+            if (closeAll) {
+                setIsExpanded(false);
+            }
+        }, [closeAll]);
 
         return (
             <div className="flex flex-col w-full">
@@ -284,6 +311,10 @@ const FileTreeItem = memo(
                                         isDropTarget ||
                                         (isInDropTargetFolder && !isOverRoot)
                                     }
+                                    revealedFile={revealedFile}
+                                    setRevealedFile={setRevealedFile}
+                                    expandAll={expandAll}
+                                    closeAll={closeAll}
                                 />
                             ))}
                         </div>

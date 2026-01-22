@@ -2,8 +2,8 @@ import {
     BookmarkIcon,
     PanelLeftIcon,
     PanelLeftCloseIcon,
-    FolderIcon,
     SearchIcon,
+    FolderClosedIcon,
 } from "lucide-react";
 
 const EditorPinned = ({ isOpen, setIsOpen }) => {
@@ -33,7 +33,7 @@ const EditorPinned = ({ isOpen, setIsOpen }) => {
                             : "opacity-0 -translate-x-4 invisible"
                     }`}
                 >
-                    <FolderIcon size={size} className="flex-shrink-0" />
+                    <FolderClosedIcon size={size} className="flex-shrink-0" />
                     <SearchIcon size={size} className="flex-shrink-0" />
                     <BookmarkIcon
                         size={size}

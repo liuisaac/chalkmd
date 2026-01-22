@@ -5,7 +5,7 @@ import { buildFileTree } from "./buildFileTree";
 import { useVault } from "../../../VaultProvider";
 import { sortItems } from "./sortFileTree";
 
-const FileTree = ({ onFileClick, sortKey }) => {
+const FileTree = ({ onFileClick, sortKey, revealedFile, setRevealedFile, expandAll, closeAll }) => {
     const [menu, setMenu] = useState(null);
     const [editingPath, setEditingPath] = useState(null);
     const [dragState, setDragState] = useState({ path: null, overPath: null });
@@ -126,6 +126,10 @@ const FileTree = ({ onFileClick, sortKey }) => {
                         onMove={handleMove}
                         dragState={dragState}
                         onDragStateChange={setDragState}
+                        revealedFile={revealedFile}
+                        setRevealedFile={setRevealedFile}
+                        expandAll={expandAll}
+                        closeAll={closeAll}
                     />
                 ))}
             </div>

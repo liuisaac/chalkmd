@@ -17,7 +17,7 @@ import { useVault } from "../../../VaultProvider";
 import ContextMenu from "../../ui/ContextMenu";
 
 const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
-    const { setCurrentFile } = useVault();
+    const { setCurrentFile, createFile, createFolder } = useVault();
 
     const iconSize = 15;
     const itemClass =
@@ -40,11 +40,11 @@ const FileTreeContextMenu = ({ x, y, onClose, onRenameInit, onDelete }) => {
 
     const menu = (
         <>
-            <div className={itemClass}>
+            <div className={itemClass} onClick={async () => await createFile()}>
                 <SquarePenIcon size={iconSize} className="text-gray-500" />
                 <span className={`${labelClass}`}>New note</span>
             </div>
-            <div className={itemClass}>
+            <div className={itemClass} onClick={async () => await createFolder()}>
                 <FolderPlus size={iconSize} className="text-gray-500" />
                 <span className={`${labelClass}`}>New folder</span>
             </div>
