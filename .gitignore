@@ -7,4 +7,6 @@ ui/dist
 ui/wailsjs
 chalkmd
 
-
+# Vite temporary files
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*

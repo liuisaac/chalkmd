@@ -233,6 +233,22 @@ export const CodeBlockNode = Node.create({
         const highlighted = new Map();
         let editorViewRef = null;
 
+        // Inject CSS for code block styling
+        if (typeof document !== 'undefined' && !document.getElementById('code-block-styles')) {
+            const style = document.createElement('style');
+            style.id = 'code-block-styles';
+            style.textContent = `
+                .ProseMirror .code-block-active {
+                    background-color: #f3f3f3 !important;
+                }
+                .ProseMirror p:has(.code-block-active) {
+                    background-color: #f3f3f3 !important;
+                    margin: 0 !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
         return [
             new Plugin({
                 key: pluginKey,
@@ -271,29 +287,61 @@ export const CodeBlockNode = Node.create({
                             const isCursorInside = Math.max(matchStart, selFrom) <= Math.min(matchEnd + 1, selTo);
 
                             if (isCursorInside) {
-                                // Cursor is inside - show raw markdown with syntax highlighting
                                 const openBackticksStart = matchStart;
                                 const openBackticksEnd = matchStart + 3;
                                 const langStart = matchStart + 3;
                                 const langEnd = matchStart + 3 + language.length;
 
-                                // Opening backticks - RED
+                                // Top spacer with background
+                                const topSpacer = document.createElement("div");
+                                topSpacer.contentEditable = "false";
+                                topSpacer.style.cssText = `
+                                    display: block !important;
+                                    background-color: #f3f3f3 !important;
+                                    height: 8px !important;
+                                    margin: 8px 0 0 0 !important;
+                                    padding: 0 !important;
+                                    border-radius: 6px 6px 0 0 !important;
+                                    width: 100% !important;
+                                `;
+                                decorations.push(Decoration.widget(matchStart, topSpacer, { side: -1 }));
+
+                                // Background for all text with padding
                                 decorations.push(
-                                    Decoration.inline(openBackticksStart, openBackticksEnd, {
-                                        style: "color: #ff6b6b !important; font-weight: 600 !important;",
+                                    Decoration.inline(matchStart, matchEnd + 1, {
+                                        class: "code-block-active",
+                                        style: "background-color: #f3f3f3 !important; padding-left: 12px !important; padding-right: 12px !important; display: inline !important; box-decoration-break: clone !important; -webkit-box-decoration-break: clone !important;",
                                     })
                                 );
 
-                                // Language identifier - YELLOW
+                                // Bottom spacer with background
+                                const bottomSpacer = document.createElement("div");
+                                bottomSpacer.contentEditable = "false";
+                                bottomSpacer.style.cssText = `
+                                    display: block !important;
+                                    background-color: #f3f3f3 !important;
+                                    height: 8px !important;
+                                    margin: 0 0 8px 0 !important;
+                                    padding: 0 !important;
+                                    border-radius: 0 0 6px 6px !important;
+                                    width: 100% !important;
+                                `;
+                                decorations.push(Decoration.widget(matchEnd + 1, bottomSpacer, { side: 1 }));
+
+                                decorations.push(
+                                    Decoration.inline(openBackticksStart, openBackticksEnd, {
+                                        style: "color: #000000 !important; font-weight: 600 !important;",
+                                    })
+                                );
+
                                 if (language) {
                                     decorations.push(
                                         Decoration.inline(langStart, langEnd, {
-                                            style: "color: #ffd93d !important; font-weight: 500 !important;",
+                                            style: "color: #000000 !important; font-weight: 500 !important;",
                                         })
                                     );
                                 }
 
-                                // Find code content positions (skip the newline after language)
                                 const codeTextStart = textStart + 3 + language.length + 1;
                                 const codeTextEnd = textEnd - 3;
                                 const codeStart = textPosToDocPos(codeTextStart, posMap);
@@ -307,12 +355,12 @@ export const CodeBlockNode = Node.create({
                                     );
                                 }
 
-                                // Closing backticks - RED
+                                // Closing backticks
                                 const closeBackticksStart = matchEnd + 1 - 3;
                                 const closeBackticksEnd = matchEnd + 1;
                                 decorations.push(
                                     Decoration.inline(closeBackticksStart, closeBackticksEnd, {
-                                        style: "color: #ff6b6b !important; font-weight: 600 !important;",
+                                        style: "color: #000000 !important; font-weight: 600 !important;",
                                     })
                                 );
                             } else {
@@ -339,18 +387,18 @@ export const CodeBlockNode = Node.create({
                                     pre.style.cssText = `
                                         margin: 8px 0 !important;
                                         border-radius: 6px !important;
-                                        background-color: #282c34 !important;
+                                        background-color: #f3f3f3 !important;
                                         padding: 12px 16px !important;
                                         overflow: auto !important;
                                         cursor: pointer !important;
                                         position: relative !important;
-                                        border: 1px solid #3e4451 !important;
                                     `;
 
                                     const codeElement = document.createElement("code");
                                     codeElement.style.cssText = `
                                         font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
                                         font-size: 13px !important;
+                                        background-color: #f3f3f3 !important;
                                         line-height: 1.6 !important;
                                         color: #abb2bf !important;
                                         display: block !important;

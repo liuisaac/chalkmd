@@ -8,12 +8,23 @@ import { HistoryManager } from "../stores/HistoryManager";
 import EditorInfoWidget from "./EditorInfoWidget";
 
 const EditorEngine = () => {
-    const { content, setContent, currentFile, renameFile, readBinaryFile, writeBinaryFile } =
+    const { content, setContent, currentFile, setCurrentFile, renameFile, readBinaryFile, writeBinaryFile, files, readFile } =
         useVault();
-    const { updateTabContent } = useTabContext();
+    const { updateTabContent, loadFileInTab, pushToHistory } = useTabContext();
     const titleInputRef = useRef(null);
     const [title, setTitle] = useState("");
     const lastSavedFileRef = useRef(currentFile);
+
+    const handleClickLink = async (filePath) => {
+        try {
+            const fileContent = await readFile(filePath);
+            setCurrentFile(filePath);
+            setContent(fileContent);
+            loadFileInTab(filePath, fileContent);
+        } catch (error) {
+            console.error("Error opening linked file:", error);
+        }
+    };
 
     const editor = CustomEditor({
         content,
@@ -22,6 +33,8 @@ const EditorEngine = () => {
         filePath: currentFile,
         readBinaryFile,
         writeBinaryFile,
+        onClickLink: handleClickLink,
+        files: files,
         editorProps: {
             handleKeyDown: (view, event) => {
                 if (event.key === "ArrowUp") {

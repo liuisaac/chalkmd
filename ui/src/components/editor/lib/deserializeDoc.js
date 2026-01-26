@@ -58,4 +58,4 @@ const deserialize = (text, INDENT_SIZE) => {
     };
 };
 
-export default deserialize
+export default deserialize;

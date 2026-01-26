@@ -14,6 +14,7 @@ import CheckboxItem from "./default/Checkbox";
 import ImageNode from "./default/Image";
 import LaTeXNode from "./default/LaTeX";
 import CodeBlockNode from "./default/CodeBlock";
+import { createWikilinkPlugin } from "./default/WikiLink";
 
 // shortcuts
 import { defaultShortcuts } from "./hotkeys/Shortcuts";
@@ -33,6 +34,8 @@ const editor = ({
     filePath,
     readBinaryFile,
     writeBinaryFile,
+    onClickLink,
+    files,
     editorProps = {},
 }) => {
     const savedData = HistoryManager.getHistory(filePath);
@@ -46,7 +49,10 @@ const editor = ({
                         return { class: { default: null } };
                     },
                     addProseMirrorPlugins() {
-                        return [plugins(this.editor, writeBinaryFile)];
+                        return [
+                            plugins(this.editor, writeBinaryFile),
+                            createWikilinkPlugin(onClickLink, files || []),
+                        ];
                     },
                     addKeyboardShortcuts() {
                         return defaultShortcuts(this.editor);
