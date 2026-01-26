@@ -71,12 +71,29 @@ function restoreScroll(snapshot) {
 }
 
 export const ImageNode = Node.create({
-    name: "inlineImage",
+    name: "imageNode",
     group: "inline",
     inline: true,
-    atom: false, 
+    atom: true,
     selectable: true,
     draggable: true,
+
+    addAttributes() {
+        return {
+            src: { default: null },
+            alt: { default: null },
+            width: { default: null },
+            filename: { default: null },
+        };
+    },
+
+    parseHTML() {
+        return [{ tag: 'span[data-image-node]' }];
+    },
+
+    renderHTML({ HTMLAttributes }) {
+        return ['span', { ...HTMLAttributes, 'data-image-node': '' }];
+    },
 
     addOptions() {
         return {
@@ -154,7 +171,7 @@ export const ImageNode = Node.create({
                                     img.style.height = "auto";
                                     img.style.borderRadius = "4px";
                                     img.style.cursor = "pointer";
-                                    img.style.display = "inline-block";
+                                    img.style.display = "block";
                                     img.style.verticalAlign = "middle";
                                     img.title = filename;
 
@@ -175,10 +192,10 @@ export const ImageNode = Node.create({
                                         view.focus();
                                     });
 
-                                    const wrapper = document.createElement("span");
+                                    const wrapper = document.createElement("div");
                                     wrapper.contentEditable = "false";
                                     wrapper.style.userSelect = "none";
-                                    wrapper.style.display = "inline-block";
+                                    wrapper.style.display = "block";
                                     wrapper.style.verticalAlign = "middle";
                                     wrapper.appendChild(img);
 

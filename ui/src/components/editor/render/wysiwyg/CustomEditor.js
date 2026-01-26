@@ -12,6 +12,8 @@ import plugins from "./plugins/PluginEntry";
 import BulletItem from "./default/Bullet";
 import CheckboxItem from "./default/Checkbox";
 import ImageNode from "./default/Image";
+import LaTeXNode from "./default/LaTeX";
+import CodeBlockNode from "./default/CodeBlock";
 
 // shortcuts
 import { defaultShortcuts } from "./hotkeys/Shortcuts";
@@ -56,6 +58,8 @@ const editor = ({
                 ImageNode.configure({
                     readBinaryFile: readBinaryFile,
                 }),
+                LaTeXNode,
+                CodeBlockNode.configure({}),
                 History.configure({
                     depth: 100,
                     newGroupDelay: 50,

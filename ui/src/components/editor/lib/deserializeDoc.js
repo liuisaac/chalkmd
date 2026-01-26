@@ -14,13 +14,8 @@ const deserialize = (text, INDENT_SIZE) => {
             const filename = imageMatch[1];
             const width = imageMatch[2] ? parseInt(imageMatch[2]) : null;
             content.push({
-                type: "imageNode",
-                attrs: {
-                    src: null,
-                    alt: filename,
-                    width: width,
-                    filename: filename,
-                },
+                type: "paragraph",
+                content: [{ type: "text", text: line }],  // ← Just plain text!
             });
             continue;
         }
