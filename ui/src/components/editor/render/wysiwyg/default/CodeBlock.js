@@ -2,7 +2,6 @@ import { Node } from "@tiptap/core";
 import { Plugin, PluginKey, TextSelection } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { highlightTree, classHighlighter } from "@lezer/highlight";
-import { tags as t } from "@lezer/highlight";
 
 // Language imports
 import { javascript } from "@codemirror/lang-javascript";
@@ -20,420 +19,148 @@ import { sql } from "@codemirror/lang-sql";
 import { xml } from "@codemirror/lang-xml";
 import { yaml } from "@codemirror/lang-yaml";
 
-// Language map
 const languageMap = {
-    javascript: javascript(),
-    js: javascript(),
-    typescript: javascript({ typescript: true }),
-    ts: javascript({ typescript: true }),
-    jsx: javascript({ jsx: true }),
-    tsx: javascript({ typescript: true, jsx: true }),
-    python: python(),
-    py: python(),
-    cpp: cpp(),
-    "c++": cpp(),
-    c: cpp(),
-    java: java(),
-    rust: rust(),
-    rs: rust(),
-    go: go(),
-    php: php(),
-    css: css(),
-    scss: css(),
-    sass: css(),
-    html: html(),
-    xml: xml(),
-    json: json(),
-    markdown: markdown(),
-    md: markdown(),
-    sql: sql(),
-    yaml: yaml(),
-    yml: yaml(),
+    javascript: javascript(), js: javascript(),
+    typescript: javascript({ typescript: true }), ts: javascript({ typescript: true }),
+    jsx: javascript({ jsx: true }), tsx: javascript({ typescript: true, jsx: true }),
+    python: python(), py: python(), cpp: cpp(), "c++": cpp(), c: cpp(),
+    java: java(), rust: rust(), rs: rust(), go: go(), php: php(),
+    css: css(), scss: css(), sass: css(), html: html(), xml: xml(),
+    json: json(), markdown: markdown(), md: markdown(), sql: sql(), yaml: yaml(), yml: yaml(),
 };
 
-// Class name to color mapping (One Dark theme)
 const classColors = {
-    "tok-keyword": "#c678dd",
-    "tok-name": "#e06c75",
-    "tok-variableName": "#e06c75",
-    "tok-typeName": "#e5c07b",
-    "tok-className": "#e5c07b",
-    "tok-propertyName": "#d19a66",
-    "tok-string": "#98c379",
-    "tok-number": "#d19a66",
-    "tok-bool": "#d19a66",
-    "tok-operator": "#56b6c2",
-    "tok-operatorKeyword": "#56b6c2",
-    "tok-comment": "#5c6370",
-    "tok-meta": "#5c6370",
-    "tok-function": "#61afef",
-    "tok-self": "#d19a66",
-    "tok-regexp": "#56b6c2",
-    "tok-escape": "#56b6c2",
-    "tok-link": "#56b6c2",
-    "tok-url": "#56b6c2",
-    "tok-heading": "#e06c75",
-    "tok-atom": "#d19a66",
-    "tok-invalid": "#ffffff",
+    "tok-keyword": "#c678dd", "tok-name": "#e06c75", "tok-variableName": "#e06c75",
+    "tok-typeName": "#e5c07b", "tok-className": "#e5c07b", "tok-propertyName": "#d19a66",
+    "tok-string": "#98c379", "tok-number": "#d19a66", "tok-bool": "#d19a66",
+    "tok-operator": "#56b6c2", "tok-operatorKeyword": "#56b6c2", "tok-comment": "#5c6370",
+    "tok-meta": "#5c6370", "tok-function": "#61afef", "tok-self": "#d19a66",
+    "tok-regexp": "#56b6c2", "tok-escape": "#56b6c2", "tok-link": "#56b6c2",
+    "tok-url": "#56b6c2", "tok-heading": "#e06c75", "tok-atom": "#d19a66",
 };
+
+function escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
 
 function highlightCode(code, language) {
     if (!code) return escapeHtml(code || "");
-
     const lang = language?.toLowerCase() || "plaintext";
     const languageSupport = languageMap[lang];
-
-    if (!languageSupport) {
-        return escapeHtml(code);
-    }
-
+    if (!languageSupport) return escapeHtml(code);
     try {
         const tree = languageSupport.language.parser.parse(code);
         const highlighted = [];
         let pos = 0;
-
-        // Use classHighlighter to get CSS class names
         highlightTree(tree, classHighlighter, (from, to, classes) => {
-            // Add any unhighlighted text before this token
-            if (from > pos) {
-                highlighted.push(escapeHtml(code.slice(pos, from)));
-            }
-
+            if (from > pos) highlighted.push(escapeHtml(code.slice(pos, from)));
             const text = code.slice(from, to);
-
-            // Parse the class names and find matching colors
             const classList = classes.split(' ');
             let color = null;
-
-            for (const cls of classList) {
-                if (classColors[cls]) {
-                    color = classColors[cls];
-                    break;
-                }
-            }
-
-            if (color) {
-                highlighted.push(`<span style="color: ${color} !important;">${escapeHtml(text)}</span>`);
-            } else {
-                highlighted.push(escapeHtml(text));
-            }
-
+            for (const cls of classList) { if (classColors[cls]) { color = classColors[cls]; break; } }
+            highlighted.push(color ? `<span style="color: ${color} !important;">${escapeHtml(text)}</span>` : escapeHtml(text));
             pos = to;
         });
-
-        // Add any remaining text
-        if (pos < code.length) {
-            highlighted.push(escapeHtml(code.slice(pos)));
-        }
-
+        if (pos < code.length) highlighted.push(escapeHtml(code.slice(pos)));
         return highlighted.join('');
-    } catch (error) {
-        console.error('Syntax highlighting error:', error);
-        return escapeHtml(code);
-    }
+    } catch { return escapeHtml(code); }
 }
-
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-// Match code blocks with newlines OR paragraph breaks
-const CODE_BLOCK_RE = /```([a-zA-Z0-9_+-]*)\n([\s\S]*?)```/g;
-const pluginKey = new PluginKey("codeBlockPlugin");
 
 function getScrollSnapshot(editorView) {
     if (!editorView) return null;
     const root = document.documentElement;
     const body = document.body;
-
     let editorScroller = null;
     let p = editorView.dom.parentElement;
     while (p) {
         const style = getComputedStyle(p);
-        if (style.overflowY === "auto" || style.overflowY === "scroll") {
-            editorScroller = p;
-            break;
-        }
+        if (style.overflowY === "auto" || style.overflowY === "scroll") { editorScroller = p; break; }
         p = p.parentElement;
     }
-
-    return {
-        docElX: root.scrollLeft,
-        docElY: root.scrollTop,
-        bodyX: body.scrollLeft,
-        bodyY: body.scrollTop,
-        editorX: editorScroller?.scrollLeft ?? null,
-        editorY: editorScroller?.scrollTop ?? null,
-        editorScroller,
-    };
+    return { docElX: root.scrollLeft, docElY: root.scrollTop, bodyX: body.scrollLeft, bodyY: body.scrollTop, editorX: editorScroller?.scrollLeft ?? null, editorY: editorScroller?.scrollTop ?? null, editorScroller };
 }
 
 function restoreScroll(snapshot) {
     if (!snapshot) return;
     const root = document.documentElement;
     const body = document.body;
-
-    root.scrollLeft = snapshot.docElX;
-    root.scrollTop = snapshot.docElY;
-    body.scrollLeft = snapshot.bodyX;
-    body.scrollTop = snapshot.bodyY;
-
-    if (snapshot.editorScroller) {
-        snapshot.editorScroller.scrollLeft = snapshot.editorX;
-        snapshot.editorScroller.scrollTop = snapshot.editorY;
-    }
+    root.scrollLeft = snapshot.docElX; root.scrollTop = snapshot.docElY;
+    body.scrollLeft = snapshot.bodyX; body.scrollTop = snapshot.bodyY;
+    if (snapshot.editorScroller) { snapshot.editorScroller.scrollLeft = snapshot.editorX; snapshot.editorScroller.scrollTop = snapshot.editorY; }
 }
 
-// Serialize document to text with position mapping
-function getDocumentText(doc) {
-    let text = '';
-    const posMap = [];
-
-    doc.descendants((node, pos) => {
-        if (node.isText && node.text) {
-            const startPos = text.length;
-            text += node.text;
-            posMap.push({ textStart: startPos, textEnd: text.length, docStart: pos, docEnd: pos + node.nodeSize });
-        } else if (node.type.name === 'paragraph' && !node.isText) {
-            // Add newline between paragraphs
-            if (text.length > 0 && !text.endsWith('\n')) {
-                text += '\n';
-            }
-        }
-    });
-
-    return { text, posMap };
-}
-
-// Convert text position to document position
-function textPosToDocPos(textPos, posMap) {
-    for (const mapping of posMap) {
-        if (textPos >= mapping.textStart && textPos < mapping.textEnd) {
-            const offset = textPos - mapping.textStart;
-            return mapping.docStart + offset;
-        }
-    }
-    return null;
-}
+// Match the LaTeX pattern - simpler regex that works within text nodes
+const CODE_BLOCK_RE = /```([a-zA-Z0-9_+-]*\n[\s\S]+?)```/g;
+const pluginKey = new PluginKey("codeBlockPlugin");
 
 export const CodeBlockNode = Node.create({
     name: "codeBlockNode",
-    group: "inline",
-    inline: true,
-    atom: true,
+    group: "inline", inline: true, atom: true,
 
     addProseMirrorPlugins() {
         const highlighted = new Map();
         let editorViewRef = null;
 
-        // Inject CSS for code block styling
-        if (typeof document !== 'undefined' && !document.getElementById('code-block-styles')) {
-            const style = document.createElement('style');
-            style.id = 'code-block-styles';
-            style.textContent = `
-                .ProseMirror .code-block-active {
-                    background-color: #f3f3f3 !important;
-                }
-                .ProseMirror p:has(.code-block-active) {
-                    background-color: #f3f3f3 !important;
-                    margin: 0 !important;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
         return [
             new Plugin({
                 key: pluginKey,
-
                 state: {
-                    init(_, { doc }) {
-                        return DecorationSet.create(doc, []);
-                    },
-
+                    init(_, { doc }) { return DecorationSet.create(doc, []); },
                     apply(tr, oldDecos, oldState, newState) {
                         const decorations = [];
                         const scrollSnap = editorViewRef ? getScrollSnapshot(editorViewRef) : null;
                         let layoutChanged = false;
 
-                        // Serialize entire document
-                        const { text, posMap } = getDocumentText(newState.doc);
+                        newState.doc.descendants((node, pos) => {
+                            if (!node.isText) return;
+                            const text = node.text;
+                            if (!text) return;
 
-                        const selFrom = newState.selection.from;
-                        const selTo = newState.selection.to;
+                            const selFrom = newState.selection.from;
+                            const selTo = newState.selection.to;
 
-                        CODE_BLOCK_RE.lastIndex = 0;
-                        let m;
+                            CODE_BLOCK_RE.lastIndex = 0;
+                            let m;
 
-                        while ((m = CODE_BLOCK_RE.exec(text)) !== null) {
-                            const textStart = m.index;
-                            const textEnd = textStart + m[0].length;
-                            const language = m[1] || "";
-                            const code = m[2];
+                            while ((m = CODE_BLOCK_RE.exec(text)) !== null) {
+                                const fullContent = m[1];
+                                const firstNewline = fullContent.indexOf('\n');
+                                const language = firstNewline > -1 ? fullContent.substring(0, firstNewline) : '';
+                                const code = firstNewline > -1 ? fullContent.substring(firstNewline + 1) : fullContent;
+                                
+                                const matchStart = pos + m.index;
+                                const matchEnd = matchStart + m[0].length;
+                                const isCursorInside = Math.max(matchStart, selFrom) <= Math.min(matchEnd, selTo);
 
-                            // Convert text positions to document positions
-                            const matchStart = textPosToDocPos(textStart, posMap);
-                            const matchEnd = textPosToDocPos(textEnd - 1, posMap);
-
-                            if (matchStart === null || matchEnd === null) continue;
-
-                            const isCursorInside = Math.max(matchStart, selFrom) <= Math.min(matchEnd + 1, selTo);
-
-                            if (isCursorInside) {
-                                const openBackticksStart = matchStart;
-                                const openBackticksEnd = matchStart + 3;
-                                const langStart = matchStart + 3;
-                                const langEnd = matchStart + 3 + language.length;
-
-                                // Top spacer with background
-                                const topSpacer = document.createElement("div");
-                                topSpacer.contentEditable = "false";
-                                topSpacer.style.cssText = `
-                                    display: block !important;
-                                    background-color: #f3f3f3 !important;
-                                    height: 8px !important;
-                                    margin: 8px 0 0 0 !important;
-                                    padding: 0 !important;
-                                    border-radius: 6px 6px 0 0 !important;
-                                    width: 100% !important;
-                                `;
-                                decorations.push(Decoration.widget(matchStart, topSpacer, { side: -1 }));
-
-                                // Background for all text with padding
-                                decorations.push(
-                                    Decoration.inline(matchStart, matchEnd + 1, {
-                                        class: "code-block-active",
-                                        style: "background-color: #f3f3f3 !important; padding-left: 12px !important; padding-right: 12px !important; display: inline !important; box-decoration-break: clone !important; -webkit-box-decoration-break: clone !important;",
-                                    })
-                                );
-
-                                // Bottom spacer with background
-                                const bottomSpacer = document.createElement("div");
-                                bottomSpacer.contentEditable = "false";
-                                bottomSpacer.style.cssText = `
-                                    display: block !important;
-                                    background-color: #f3f3f3 !important;
-                                    height: 8px !important;
-                                    margin: 0 0 8px 0 !important;
-                                    padding: 0 !important;
-                                    border-radius: 0 0 6px 6px !important;
-                                    width: 100% !important;
-                                `;
-                                decorations.push(Decoration.widget(matchEnd + 1, bottomSpacer, { side: 1 }));
-
-                                decorations.push(
-                                    Decoration.inline(openBackticksStart, openBackticksEnd, {
-                                        style: "color: #000000 !important; font-weight: 600 !important;",
-                                    })
-                                );
-
-                                if (language) {
+                                if (isCursorInside) {
                                     decorations.push(
-                                        Decoration.inline(langStart, langEnd, {
-                                            style: "color: #000000 !important; font-weight: 500 !important;",
-                                        })
+                                        Decoration.inline(matchStart, matchEnd, { style: "background-color: #f3f3f3; font-family: monospace;" }),
+                                        Decoration.inline(matchStart, matchStart + 3, { style: "color: #c678dd; font-weight: bold;" })
                                     );
-                                }
+                                } else {
+                                    decorations.push(Decoration.inline(matchStart, matchEnd, { style: "display: none !important" }));
+                                    layoutChanged = true;
 
-                                const codeTextStart = textStart + 3 + language.length + 1;
-                                const codeTextEnd = textEnd - 3;
-                                const codeStart = textPosToDocPos(codeTextStart, posMap);
-                                const codeEnd = textPosToDocPos(codeTextEnd - 1, posMap);
-
-                                if (codeStart !== null && codeEnd !== null) {
-                                    decorations.push(
-                                        Decoration.inline(codeStart, codeEnd + 1, {
-                                            style: "color: #a8dadc !important; font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;",
-                                        })
-                                    );
-                                }
-
-                                // Closing backticks
-                                const closeBackticksStart = matchEnd + 1 - 3;
-                                const closeBackticksEnd = matchEnd + 1;
-                                decorations.push(
-                                    Decoration.inline(closeBackticksStart, closeBackticksEnd, {
-                                        style: "color: #000000 !important; font-weight: 600 !important;",
-                                    })
-                                );
-                            } else {
-                                // Cursor is outside - hide markdown and show rendered widget
-                                decorations.push(
-                                    Decoration.inline(matchStart, matchEnd + 1, {
-                                        style: "display: none !important; visibility: hidden !important;",
-                                    })
-                                );
-                                layoutChanged = true;
-
-                                const key = `code-${language}-${code.substring(0, 50)}-${matchStart}`;
-                                let highlightedCode = highlighted.get(key);
-
-                                if (!highlightedCode) {
-                                    highlightedCode = highlightCode(code, language);
-                                    if (highlightedCode) {
-                                        highlighted.set(key, highlightedCode);
-                                    }
-                                }
-
-                                if (highlightedCode) {
-                                    const pre = document.createElement("pre");
-                                    pre.style.cssText = `
-                                        margin: 8px 0 !important;
-                                        border-radius: 6px !important;
-                                        background-color: #f3f3f3 !important;
-                                        padding: 12px 16px !important;
-                                        overflow: auto !important;
-                                        cursor: pointer !important;
-                                        position: relative !important;
-                                    `;
-
-                                    const codeElement = document.createElement("code");
-                                    codeElement.style.cssText = `
-                                        font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
-                                        font-size: 13px !important;
-                                        background-color: #f3f3f3 !important;
-                                        line-height: 1.6 !important;
-                                        color: #abb2bf !important;
-                                        display: block !important;
-                                        white-space: pre !important;
-                                    `;
-                                    codeElement.innerHTML = highlightedCode;
-
-                                    if (language) {
-                                        const langLabel = document.createElement("div");
-                                        langLabel.textContent = language;
-                                        langLabel.style.cssText = `
-                                            position: absolute !important;
-                                            top: 4px !important;
-                                            right: 8px !important;
-                                            font-size: 10px !important;
-                                            color: #5c6370 !important;
-                                            text-transform: uppercase !important;
-                                            font-weight: 600 !important;
-                                            letter-spacing: 0.5px !important;
-                                        `;
-                                        pre.appendChild(langLabel);
+                                    const key = `code-${language}-${code}-${matchStart}`;
+                                    let html = highlighted.get(key);
+                                    if (!html) {
+                                        html = highlightCode(code, language);
+                                        highlighted.set(key, html);
                                     }
 
-                                    pre.appendChild(codeElement);
-
-                                    const wrapper = document.createElement("div");
-                                    wrapper.contentEditable = "false";
-                                    wrapper.style.cssText = `
-                                        user-select: none !important;
-                                        display: block !important;
-                                        margin: 8px 0 !important;
+                                    const container = document.createElement("div");
+                                    container.contentEditable = "false";
+                                    Object.assign(container.style, { userSelect: "none", display: "block", margin: "8px 0" });
+                                    container.innerHTML = `
+                                        <div style="position: relative; background: #f3f3f3; padding: 12px; border-radius: 6px; cursor: pointer; border: 1px solid #ddd;">
+                                            ${language ? `<span style="position: absolute; top: 4px; right: 8px; font-size: 10px; color: #5c6370; text-transform: uppercase;">${escapeHtml(language)}</span>` : ''}
+                                            <pre style="margin: 0; font-family: monospace; font-size: 13px; color: #333; white-space: pre-wrap;"><code>${html}</code></pre>
+                                        </div>
                                     `;
 
-                                    wrapper.addEventListener("mousedown", (e) => e.preventDefault());
-                                    wrapper.addEventListener("click", (ev) => {
+                                    container.addEventListener("mousedown", (e) => e.preventDefault());
+                                    container.addEventListener("click", (ev) => {
                                         let view = window.__editorView || ev.target.ownerDocument?.defaultView?.__editorView;
                                         if (!view) {
                                             const nearest = ev.target.closest(".ProseMirror");
@@ -442,39 +169,24 @@ export const CodeBlockNode = Node.create({
                                         if (!view) return;
 
                                         const tr = view.state.tr.setSelection(
-                                            TextSelection.create(view.state.doc, matchStart, matchEnd + 1)
+                                            TextSelection.create(view.state.doc, matchStart, matchEnd)
                                         );
                                         view.dispatch(tr);
                                         view.focus();
                                     });
 
-                                    wrapper.appendChild(pre);
-
-                                    decorations.push(
-                                        Decoration.widget(matchEnd + 1, wrapper, { side: 1 })
-                                    );
+                                    decorations.push(Decoration.widget(matchEnd, container, { side: 1 }));
                                 }
                             }
-                        }
+                        });
 
                         if (scrollSnap && layoutChanged) {
-                            requestAnimationFrame(() => {
-                                requestAnimationFrame(() => {
-                                    restoreScroll(scrollSnap);
-                                });
-                            });
+                            requestAnimationFrame(() => requestAnimationFrame(() => restoreScroll(scrollSnap)));
                         }
-
                         return DecorationSet.create(newState.doc, decorations);
-                    },
+                    }
                 },
-
-                props: {
-                    decorations(state) {
-                        return this.getState(state);
-                    },
-                },
-
+                props: { decorations(state) { return this.getState(state); } },
                 view(editorView) {
                     editorViewRef = editorView;
                     editorView.dom.__editorView = editorView;

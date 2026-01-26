@@ -2,30 +2,22 @@ import { useEditor } from "@tiptap/react";
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
-
-// serialization
+import { History } from "@tiptap/extension-history";
 import serialize from "../../lib/serializeDoc";
 import deserialize from "../../lib/deserializeDoc";
-
-// custom plugins and extensions
 import plugins from "./plugins/PluginEntry";
 import BulletItem from "./default/Bullet";
 import CheckboxItem from "./default/Checkbox";
 import ImageNode from "./default/Image";
 import LaTeXNode from "./default/LaTeX";
 import CodeBlockNode from "./default/CodeBlock";
-import { createWikilinkPlugin } from "./default/WikiLink";
-
-// shortcuts
 import { defaultShortcuts } from "./hotkeys/Shortcuts";
-
-// history
-import { History } from "@tiptap/extension-history";
 import { HistoryManager } from "../../stores/HistoryManager";
-
 import settings from "../../../../../../settings.json";
+import { Code } from "lucide-react";
 
 const INDENT_SIZE = settings.indentSize || 4;
+const isEditorUpdateRef = { current: false };
 
 const editor = ({
     content,
@@ -34,8 +26,6 @@ const editor = ({
     filePath,
     readBinaryFile,
     writeBinaryFile,
-    onClickLink,
-    files,
     editorProps = {},
 }) => {
     const savedData = HistoryManager.getHistory(filePath);
@@ -49,10 +39,7 @@ const editor = ({
                         return { class: { default: null } };
                     },
                     addProseMirrorPlugins() {
-                        return [
-                            plugins(this.editor, writeBinaryFile),
-                            createWikilinkPlugin(onClickLink, files || []),
-                        ];
+                        return [plugins(this.editor, writeBinaryFile)];
                     },
                     addKeyboardShortcuts() {
                         return defaultShortcuts(this.editor);
@@ -61,11 +48,11 @@ const editor = ({
                 Text,
                 CheckboxItem,
                 BulletItem,
+                LaTeXNode,
+                CodeBlockNode,
                 ImageNode.configure({
                     readBinaryFile: readBinaryFile,
                 }),
-                LaTeXNode,
-                CodeBlockNode.configure({}),
                 History.configure({
                     depth: 100,
                     newGroupDelay: 50,
@@ -82,10 +69,8 @@ const editor = ({
                 if (savedData) {
                     if (savedData.selection) {
                         try {
-                            editor.commands.setTextSelection(
-                                savedData.selection
-                            );
-                        } catch (e) { }
+                            editor.commands.setTextSelection(savedData.selection);
+                        } catch (e) {}
                     }
                     if (savedData.scroll && editor.view.dom) {
                         setTimeout(() => {
@@ -95,7 +80,11 @@ const editor = ({
                     }
                 }
             },
-            onUpdate: ({ editor }) => {
+            onUpdate: ({ editor, transaction }) => {
+                if (transaction.getMeta('skipUpdate')) return;
+
+                isEditorUpdateRef.current = true;
+
                 const text = serialize(editor, INDENT_SIZE);
                 setContent(text);
                 updateTabContent(text);
@@ -103,33 +92,41 @@ const editor = ({
                 const { doc, tr } = editor.state;
                 let modified = false;
 
+                const SYNTAX_RULES = [
+                    { reg: /^(#{1,6})\s/, class: (m) => `heading-${m[1].length}` },
+                    { reg: /^```/, class: () => 'code-block' },
+                    { reg: /^>\s/, class: () => 'blockquote' },
+                ];
+
                 doc.descendants((node, pos) => {
                     if (node.type.name === "paragraph") {
-                        const textContent = node.textContent;
-                        const match = textContent.match(/^(#{1,6})\s/);
-                        if (match) {
-                            const level = match[1].length;
-                            const className = `heading-${level}`;
-                            if (node.attrs.class !== className) {
-                                tr.setNodeMarkup(pos, null, {
-                                    class: className,
-                                });
-                                modified = true;
+                        let targetClass = null;
+
+                        for (const rule of SYNTAX_RULES) {
+                            const match = node.textContent.match(rule.reg);
+                            if (match) {
+                                targetClass = rule.class(match);
+                                break;
                             }
-                        } else if (node.attrs.class) {
-                            tr.setNodeMarkup(pos, null, { class: null });
+                        }
+
+                        if (node.attrs.class !== targetClass) {
+                            tr.setNodeMarkup(pos, null, { ...node.attrs, class: targetClass });
                             modified = true;
                         }
                     }
                 });
 
                 if (modified) {
+                    tr.setMeta('skipUpdate', true);
                     editor.view.dispatch(tr);
                 }
+
+                setTimeout(() => { isEditorUpdateRef.current = false; }, 0);
             },
         },
         [filePath]
     );
 };
 
-export { editor as default, serialize, deserialize };
+export { editor as default, serialize, deserialize, isEditorUpdateRef };

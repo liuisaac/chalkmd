@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { EditorContent } from "@tiptap/react";
 import { useVault } from "../../../VaultProvider";
 import { useTabContext } from "../../../TabProvider";
-import CustomEditor, { serialize, deserialize } from "./wysiwyg/CustomEditor";
+import CustomEditor, { serialize, deserialize, isEditorUpdateRef } from "./wysiwyg/CustomEditor";
 import EditorNoteBar from "./EditorNoteBar";
 import { HistoryManager } from "../stores/HistoryManager";
 import EditorInfoWidget from "./EditorInfoWidget";
@@ -14,6 +14,7 @@ const EditorEngine = () => {
     const titleInputRef = useRef(null);
     const [title, setTitle] = useState("");
     const lastSavedFileRef = useRef(currentFile);
+    const INDENT_SIZE = 4;
 
     const handleClickLink = async (filePath) => {
         try {
@@ -50,7 +51,6 @@ const EditorEngine = () => {
     });
 
     useEffect(() => {
-        // only save history when switching files (not on mount)
         if (
             lastSavedFileRef.current &&
             lastSavedFileRef.current !== currentFile
@@ -61,7 +61,6 @@ const EditorEngine = () => {
         }
         lastSavedFileRef.current = currentFile;
 
-        // cleanup on unmount
         return () => {
             if (editor && !editor.isDestroyed && currentFile) {
                 HistoryManager.saveHistory(currentFile, editor);
@@ -70,8 +69,8 @@ const EditorEngine = () => {
     }, [currentFile, editor]);
 
     useEffect(() => {
-        if (editor && content !== serialize(editor)) {
-            editor.commands.setContent(deserialize(content), false);
+        if (editor && content !== serialize(editor, INDENT_SIZE) && !isEditorUpdateRef.current) {
+            editor.commands.setContent(deserialize(content, INDENT_SIZE), false);
         }
     }, [content, editor]);
 
@@ -102,6 +101,7 @@ const EditorEngine = () => {
                     ? `${parentPath}/${trimmedTitle}.${extension}`
                     : `${trimmedTitle}.${extension}`;
                 await renameFile(currentFile, newPath);
+                setCurrentFile(newPath);
             } catch (err) {
                 setTitle(currentFileName);
             }
@@ -142,7 +142,7 @@ const EditorEngine = () => {
                     .ProseMirror { 
                         padding: 1.5rem 1.5rem; 
                         outline: none; 
-                        font-weight: 350; /* Adjust between 300 and 400 for precision */
+                        font-weight: 350;
                         -webkit-font-smoothing: antialiased;
                         -moz-osx-font-smoothing: grayscale;
                         text-rendering: optimizeLegibility;

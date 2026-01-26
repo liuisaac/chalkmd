@@ -6,6 +6,15 @@ let katexLoaded = false;
 let katexLoading = false;
 let katexLoadCallbacks = [];
 
+// Helper: Refresh view to apply syntax highlighting/math after load
+const triggerGlobalRefresh = (view) => {
+    const editorView = view || window.__editorView;
+    if (editorView && !editorView.isDestroyed) {
+        editorView.dispatch(editorView.state.tr.setMeta("refresh_syntax", true));
+    }
+};
+
+// Helper: Async Load Katex Library
 function loadKatex() {
     if (katexLoaded) return Promise.resolve();
     if (katexLoading) {
@@ -27,6 +36,7 @@ function loadKatex() {
             resolve();
             katexLoadCallbacks.forEach((cb) => cb());
             katexLoadCallbacks = [];
+            triggerGlobalRefresh();
         };
         script.onerror = () => {
             katexLoading = false;
@@ -36,6 +46,7 @@ function loadKatex() {
     });
 }
 
+// Helper: Render LaTeX string to DOM
 function renderLatex(latex, displayMode = false) {
     if (!katexLoaded || !window.katex) return null;
 
@@ -52,10 +63,7 @@ function renderLatex(latex, displayMode = false) {
     }
 }
 
-const INLINE_LATEX_RE = /(?<!\$)\$(?!\$)([^\$\n]+?)\$/g;
-const BLOCK_LATEX_RE = /\$\$([^\$]+?)\$\$/g;
-const pluginKey = new PluginKey("latexPlugin");
-
+// Helper: Snapshot Scroll Position (to prevent jumping during render)
 function getScrollSnapshot(editorView) {
     if (!editorView) return null;
     const root = document.documentElement;
@@ -83,6 +91,7 @@ function getScrollSnapshot(editorView) {
     };
 }
 
+// Helper: Restore Scroll Position
 function restoreScroll(snapshot) {
     if (!snapshot) return;
     const root = document.documentElement;
@@ -98,6 +107,10 @@ function restoreScroll(snapshot) {
         snapshot.editorScroller.scrollTop = snapshot.editorY;
     }
 }
+
+const INLINE_LATEX_RE = /(?<!\$)\$(?!\$)([^\$\n]+?)\$/g;
+const BLOCK_LATEX_RE = /\$\$([^\$]+?)\$\$/g;
+const pluginKey = new PluginKey("latexPlugin");
 
 export const LaTeXNode = Node.create({
     name: "latexNode",
@@ -133,6 +146,7 @@ export const LaTeXNode = Node.create({
                             const selFrom = newState.selection.from;
                             const selTo = newState.selection.to;
 
+                            // Handle Block Latex $$...$$
                             BLOCK_LATEX_RE.lastIndex = 0;
                             let m;
                             while ((m = BLOCK_LATEX_RE.exec(text)) !== null) {
@@ -150,25 +164,13 @@ export const LaTeXNode = Node.create({
                                     const contentEnd = matchEnd - 2;
 
                                     decorations.push(
-                                        Decoration.inline(dollarStart1, dollarEnd1, {
-                                            style: "color: #ff6b6b; font-weight: 600;",
-                                        })
-                                    );
-                                    decorations.push(
-                                        Decoration.inline(contentStart, contentEnd, {
-                                            style: "color: #4ecdc4;",
-                                        })
-                                    );
-                                    decorations.push(
-                                        Decoration.inline(dollarStart2, dollarEnd2, {
-                                            style: "color: #ff6b6b; font-weight: 600;",
-                                        })
+                                        Decoration.inline(dollarStart1, dollarEnd1, { style: "color: #ff6b6b; font-weight: 600;" }),
+                                        Decoration.inline(contentStart, contentEnd, { style: "color: #4ecdc4;" }),
+                                        Decoration.inline(dollarStart2, dollarEnd2, { style: "color: #ff6b6b; font-weight: 600;" })
                                     );
                                 } else {
                                     decorations.push(
-                                        Decoration.inline(matchStart, matchEnd, {
-                                            style: "display: none !important",
-                                        })
+                                        Decoration.inline(matchStart, matchEnd, { style: "display: none !important" })
                                     );
                                     layoutChanged = true;
                                 }
@@ -178,19 +180,19 @@ export const LaTeXNode = Node.create({
 
                                 if (!renderedElement && katexLoaded) {
                                     renderedElement = renderLatex(latex, true);
-                                    if (renderedElement) {
-                                        rendered.set(key, renderedElement);
-                                    }
+                                    if (renderedElement) rendered.set(key, renderedElement);
                                 }
 
                                 if (renderedElement) {
                                     const wrapper = document.createElement("div");
                                     wrapper.contentEditable = "false";
-                                    wrapper.style.userSelect = "none";
-                                    wrapper.style.display = "block";
-                                    wrapper.style.margin = "8px 0";
-                                    wrapper.style.cursor = "pointer";
-                                    wrapper.style.textAlign = "center";
+                                    Object.assign(wrapper.style, {
+                                        userSelect: "none",
+                                        display: "block",
+                                        margin: "8px 0",
+                                        cursor: "pointer",
+                                        textAlign: "center"
+                                    });
                                     wrapper.appendChild(renderedElement.cloneNode(true));
 
                                     wrapper.addEventListener("mousedown", (e) => e.preventDefault());
@@ -209,12 +211,11 @@ export const LaTeXNode = Node.create({
                                         view.focus();
                                     });
 
-                                    decorations.push(
-                                        Decoration.widget(matchEnd, wrapper, { side: 1 })
-                                    );
+                                    decorations.push(Decoration.widget(matchEnd, wrapper, { side: 1 }));
                                 }
                             }
 
+                            // Handle Inline Latex $...$
                             INLINE_LATEX_RE.lastIndex = 0;
                             while ((m = INLINE_LATEX_RE.exec(text)) !== null) {
                                 const matchStart = pos + m.index;
@@ -231,19 +232,9 @@ export const LaTeXNode = Node.create({
                                     const contentEnd = matchEnd - 1;
 
                                     decorations.push(
-                                        Decoration.inline(dollarStart1, dollarEnd1, {
-                                            style: "color: #ff6b6b; font-weight: 600;",
-                                        })
-                                    );
-                                    decorations.push(
-                                        Decoration.inline(contentStart, contentEnd, {
-                                            style: "color: #4ecdc4;",
-                                        })
-                                    );
-                                    decorations.push(
-                                        Decoration.inline(dollarStart2, dollarEnd2, {
-                                            style: "color: #ff6b6b; font-weight: 600;",
-                                        })
+                                        Decoration.inline(dollarStart1, dollarEnd1, { style: "color: #ff6b6b; font-weight: 600;" }),
+                                        Decoration.inline(contentStart, contentEnd, { style: "color: #4ecdc4;" }),
+                                        Decoration.inline(dollarStart2, dollarEnd2, { style: "color: #ff6b6b; font-weight: 600;" })
                                     );
                                 } else {
                                     const key = `inline-${latex}-${matchStart}`;
@@ -251,22 +242,20 @@ export const LaTeXNode = Node.create({
 
                                     if (!renderedElement && katexLoaded) {
                                         renderedElement = renderLatex(latex, false);
-                                        if (renderedElement) {
-                                            rendered.set(key, renderedElement);
-                                        }
+                                        if (renderedElement) rendered.set(key, renderedElement);
                                     }
 
                                     if (renderedElement) {
                                         decorations.push(
-                                            Decoration.inline(matchStart, matchEnd, {
-                                                style: "display: none !important",
-                                            })
+                                            Decoration.inline(matchStart, matchEnd, { style: "display: none !important" })
                                         );
 
                                         const wrapper = document.createElement("span");
                                         wrapper.contentEditable = "false";
-                                        wrapper.style.userSelect = "none";
-                                        wrapper.style.cursor = "pointer";
+                                        Object.assign(wrapper.style, {
+                                            userSelect: "none",
+                                            cursor: "pointer"
+                                        });
                                         wrapper.appendChild(renderedElement.cloneNode(true));
 
                                         wrapper.addEventListener("mousedown", (e) => e.preventDefault());
@@ -285,9 +274,7 @@ export const LaTeXNode = Node.create({
                                             view.focus();
                                         });
 
-                                        decorations.push(
-                                            Decoration.widget(matchEnd, wrapper, { side: 1 })
-                                        );
+                                        decorations.push(Decoration.widget(matchEnd, wrapper, { side: 1 }));
                                         layoutChanged = true;
                                     }
                                 }

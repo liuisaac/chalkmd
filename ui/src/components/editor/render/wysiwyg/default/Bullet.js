@@ -187,18 +187,19 @@ export const BulletItem = Node.create({
     addInputRules() {
         return [
             {
-                // Reverted to standard check. The conflict is handled in CheckboxItem.
                 find: /^(\s*)- $/,
                 handler: ({ state, range, match }) => {
                     const spaces = match[1].length;
                     const indentLevel = Math.floor(spaces / INDENT_SIZE);
                     const { tr } = state;
-                    const $start = state.doc.resolve(range.from);
-                    const nodeStart = $start.before();
-                    const bulletNode = state.schema.nodes.bulletItem.create({ indent: indentLevel });
-                    tr.replaceWith(nodeStart, $start.after(), bulletNode);
-                    const newPos = nodeStart + 1;
-                    tr.setSelection(state.selection.constructor.near(tr.doc.resolve(newPos)));
+                    
+                    // Only delete the matched "- " text, not the entire node
+                    tr.delete(range.from, range.to);
+                    
+                    // Convert current node to bulletItem
+                    const $pos = tr.doc.resolve(range.from);
+                    tr.setNodeMarkup($pos.before(), state.schema.nodes.bulletItem, { indent: indentLevel });
+                    
                     return tr;
                 },
             },
