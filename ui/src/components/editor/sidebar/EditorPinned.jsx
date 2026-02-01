@@ -22,7 +22,7 @@ const EditorPinned = ({ isOpen, setIsOpen, active, setActive }) => {
                     className="cursor-pointer flex-shrink-0 hover:text-gray-700 transition-colors"
                 >
                     {isOpen ? (
-                        <PanelLeftCloseIcon
+                        <PanelLeftIcon
                             size={18}
                             strokeWidth={strokeWidth}
                         />

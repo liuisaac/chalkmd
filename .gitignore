@@ -3,6 +3,7 @@ node_modules
 build/bin/chalkmd-dev.exe 
 
 ui/package.json.md5
+ui/package.json.backup
 ui/dist
 ui/wailsjs
 chalkmd
