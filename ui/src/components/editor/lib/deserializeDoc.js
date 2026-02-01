@@ -1,3 +1,18 @@
+// Check if a line is a valid table row (starts and ends with |)
+function isTableRow(line) {
+    const trimmed = line.trim();
+    return trimmed.startsWith('|') && trimmed.endsWith('|') && trimmed.length > 2;
+}
+
+// Check if a line is a code block fence
+function isCodeBlockStart(line) {
+    return line.trimStart().startsWith('```');
+}
+
+function isCodeBlockEnd(line) {
+    return line.trim() === '```';
+}
+
 const deserialize = (text, INDENT_SIZE) => {
     if (typeof text !== "string" || !text) {
         return {
@@ -8,7 +23,50 @@ const deserialize = (text, INDENT_SIZE) => {
 
     const lines = text.split("\n");
     const content = [];
-    for (const line of lines) {
+    let i = 0;
+
+    while (i < lines.length) {
+        const line = lines[i];
+
+        // Check for code block: collect lines from ``` to closing ```
+        // A code block starts with ``` (possibly followed by language), need at least one more line
+        if (isCodeBlockStart(line) && i + 1 < lines.length) {
+            // Opening fence with possible language (e.g. ```javascript or just ```)
+            const codeLines = [line];
+            i++;
+            while (i < lines.length) {
+                codeLines.push(lines[i]);
+                if (isCodeBlockEnd(lines[i])) {
+                    i++;
+                    break;
+                }
+                i++;
+            }
+            // Join code block lines with newlines into a single text node
+            const codeText = codeLines.join('\n');
+            content.push({
+                type: "paragraph",
+                content: [{ type: "text", text: codeText }],
+            });
+            continue;
+        }
+
+        // Check for table: collect consecutive table rows into a single paragraph
+        if (isTableRow(line)) {
+            const tableLines = [];
+            while (i < lines.length && isTableRow(lines[i])) {
+                tableLines.push(lines[i]);
+                i++;
+            }
+            // Join table lines with newlines and store as single text node
+            const tableText = tableLines.join('\n') + '\n';
+            content.push({
+                type: "paragraph",
+                content: [{ type: "text", text: tableText }],
+            });
+            continue;
+        }
+
         const imageMatch = line.match(/^!\[\[([^\]|]+)(?:\|(\d+))?\]\]$/);
         if (imageMatch) {
             const filename = imageMatch[1];
@@ -17,6 +75,7 @@ const deserialize = (text, INDENT_SIZE) => {
                 type: "paragraph",
                 content: [{ type: "text", text: line }],  // ← Just plain text!
             });
+            i++;
             continue;
         }
 
@@ -31,6 +90,7 @@ const deserialize = (text, INDENT_SIZE) => {
                 attrs: { indent: indentLevel, checked: checked },
                 content: itemText ? [{ type: "text", text: itemText }] : [],
             });
+            i++;
             continue;
         }
 
@@ -44,6 +104,7 @@ const deserialize = (text, INDENT_SIZE) => {
                 attrs: { indent: indentLevel },
                 content: itemText ? [{ type: "text", text: itemText }] : [],
             });
+            i++;
             continue;
         }
 
@@ -51,6 +112,7 @@ const deserialize = (text, INDENT_SIZE) => {
             type: "paragraph",
             content: line ? [{ type: "text", text: line }] : [],
         });
+        i++;
     }
     return {
         type: "doc",

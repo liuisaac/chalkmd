@@ -4,7 +4,7 @@
   "description": "cross-platform markdown based note-taking application",
   "scripts": {
     "dev": "wails dev",
-    "build": "wails build",
+    "build": "wails build && cd ui && npm test",
     "test": "cd ui && npm test",
     "test:ui": "cd ui && npm run test:ui",
     "test:coverage": "cd ui && npm run test:coverage",

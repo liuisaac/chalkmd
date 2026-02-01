@@ -11,6 +11,7 @@ import CheckboxItem from "./default/Checkbox";
 import ImageNode from "./default/Image";
 import LaTeXNode from "./default/LaTeX";
 import CodeBlockNode from "./default/CodeBlock";
+import TableNode from "./default/Table";
 import { defaultShortcuts } from "./hotkeys/Shortcuts";
 import { HistoryManager } from "../../stores/HistoryManager";
 import settings from "../../../../../../settings.json";
@@ -50,6 +51,7 @@ const editor = ({
                 BulletItem,
                 LaTeXNode,
                 CodeBlockNode,
+                // TableNode,
                 ImageNode.configure({
                     readBinaryFile: readBinaryFile,
                 }),
@@ -63,6 +65,9 @@ const editor = ({
                 ...editorProps,
                 attributes: {
                     class: "max-w-none focus:outline-none min-h-screen p-6",
+                    spellcheck: "false",
+                    autocorrect: "off",
+                    autocapitalize: "off",
                 },
             },
             onCreate: ({ editor }) => {

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import EditorPinned from "./sidebar/EditorPinned";
 import EditorRibbon from "./sidebar/EditorRibbon";
 import EditorFooter from "./sidebar/EditorFooter";
+import SearchPanel from "./sidebar/SearchPanel";
 import FileTree from "./filetree/FileTree";
 import FileTreeRibbon from "./filetree/FileTreeRibbon";
 import { PINNED_STATES } from "../../constants/pinnedStates";
@@ -158,15 +159,9 @@ const EditorSidebar = ({ onFileClick, setSidebarWidth }) => {
                             </>
                         )}
 
-                        {
-                            active === PINNED_STATES.SEARCH && (
-                                <div className="flex-1 flex items-center justify-center">
-                                    <span className="text-gray-500">
-                                        Search Panel Coming Soon!
-                                    </span>
-                                </div>
-                            )
-                        }
+                        {active === PINNED_STATES.SEARCH && (
+                            <SearchPanel onFileClick={onFileClick} />
+                        )}
                         {
                             active === PINNED_STATES.BOOKMARK && (
                                 <div className="flex-1 flex items-center justify-center">
