@@ -195,6 +195,90 @@ Custom fonts: Syne, Inconsolata, Inter
 - Regenerated automatically when running `wails dev` or `wails build`
 - Based on exported Go methods with capital first letter in `internal/` package
 
+## Testing
+
+### Test Commands (from ui/ directory)
+
+```bash
+# Unit tests (mocked)
+npm run test              # Run all Vitest tests
+npm run test:ui           # Run with Vitest UI
+npm run test:coverage     # Run with coverage report
+
+# Integration tests (real filesystem)
+npm run test:integration  # Tests using actual filesystem operations
+
+# E2E tests (full application)
+npm run test:e2e          # Run Playwright E2E tests
+npm run test:e2e:ui       # Run with Playwright UI
+npm run test:e2e:headed   # Run with visible browser
+```
+
+### Test Categories
+
+#### 1. Go Backend Tests (`tests/go/`)
+- Pure Go unit tests for backend file operations
+- Test path traversal protection, file CRUD, vault operations
+- Run with: `go test ./tests/go/...`
+
+#### 2. Mock-Based Unit Tests (`ui/src/tests/regression/`)
+- Fast tests using mock filesystem
+- Test basic logic and edge cases
+- Limited value for catching real bugs
+
+#### 3. Integration Tests (`ui/src/tests/integration/`)
+**Most valuable for catching bugs like file duplication and content wiping**
+
+- `realFilesystem.test.js` - Tests file operations against real filesystem
+- `autoSaveRaceCondition.test.js` - Tests race conditions in auto-save
+
+These tests:
+- Create temporary directories on disk
+- Perform actual filesystem operations
+- Verify files exist and contain correct content
+- Test concurrent operations and timing issues
+
+#### 4. E2E Tests (`ui/src/tests/e2e/`)
+- Playwright tests against the running Wails application
+- Test actual user workflows
+- Verify files are created/saved correctly on disk
+- Prerequisites: Install Playwright browsers with `npx playwright install`
+
+### Known Bug Patterns and Fixes
+
+#### Auto-Save Race Condition (FIXED)
+**Problem**: When switching files quickly, content could be written to the wrong file.
+**Root Cause**: `useEffect` captured `currentFile` at timeout execution time, not schedule time.
+**Fix** (in `App.jsx`): Capture `currentFile` and `content` at effect creation:
+```javascript
+const fileToSave = currentFile;  // Capture at schedule time
+const contentToSave = content;
+setTimeout(() => WriteFile(fileToSave, contentToSave), 100);
+```
+
+#### Vault Reload Race Condition (FIXED)
+**Problem**: Rapid file operations caused stale file lists to overwrite newer ones.
+**Root Cause**: Multiple `loadVaultContents()` calls without coordination.
+**Fix** (in `VaultProvider.jsx`): Debounced reload with generation tracking to skip stale results.
+
+### Writing Effective Tests
+
+For file operation bugs, prefer **integration tests** over mock-based tests:
+
+```javascript
+// BAD: Tests a mock, not real behavior
+const mockFS = new Map()
+mockFS.set('file.md', 'content')
+expect(mockFS.get('file.md')).toBe('content')
+
+// GOOD: Tests actual filesystem
+await fs.writeFile(path.join(testVault, 'file.md'), 'content')
+const result = await fs.readFile(path.join(testVault, 'file.md'), 'utf-8')
+expect(result).toBe('content')
+```
+
+For UI interaction bugs, use **E2E tests** that interact with the real application.
+
 ## Project Policies
 
 From README.md:

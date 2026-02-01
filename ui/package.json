@@ -6,7 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:integration": "vitest run src/tests/integration/",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.0",
@@ -38,12 +45,19 @@
     "tiptap-markdown": "^0.9.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.41.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^14.3.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.0.1",
+    "@vitest/ui": "^1.6.1",
     "autoprefixer": "^10.4.23",
+    "jsdom": "^23.2.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
-    "vite": "^3.0.7"
+    "vite": "^3.0.7",
+    "vitest": "^1.6.1"
   }
 }

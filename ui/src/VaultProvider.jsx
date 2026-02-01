@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
 
 // fs handlers
 import {
@@ -41,13 +41,60 @@ export const VaultProvider = ({ children }) => {
     const [content, setContent] = useState("");
     const [expandedFolders, setExpandedFolders] = useState(new Set());
 
+    // Refs for debouncing and serializing vault reloads
+    // This prevents race conditions when multiple file operations happen rapidly
+    const reloadTimeoutRef = useRef(null);
+    const reloadPromiseRef = useRef(null);
+    const reloadGenerationRef = useRef(0);
+
     const openVault = async (x) => {
         await OpenVault(x, setVaultPath, setFiles);
     };
 
-    const loadVaultContents = async () => {
-        await LoadVaultContents(setFiles);
-    };
+    // Debounced and serialized vault reload to prevent race conditions
+    // Multiple rapid file operations won't cause stale file lists to overwrite newer ones
+    const loadVaultContents = useCallback(async () => {
+        // Cancel any pending reload
+        if (reloadTimeoutRef.current) {
+            clearTimeout(reloadTimeoutRef.current);
+        }
+        
+        // Increment generation to track which reload is current
+        const generation = ++reloadGenerationRef.current;
+        
+        return new Promise((resolve, reject) => {
+            reloadTimeoutRef.current = setTimeout(async () => {
+                try {
+                    // If another reload was scheduled, skip this one
+                    if (generation !== reloadGenerationRef.current) {
+                        resolve();
+                        return;
+                    }
+                    
+                    // Wait for any in-progress reload to complete
+                    if (reloadPromiseRef.current) {
+                        await reloadPromiseRef.current;
+                    }
+                    
+                    // Check again after waiting
+                    if (generation !== reloadGenerationRef.current) {
+                        resolve();
+                        return;
+                    }
+                    
+                    // Perform the actual reload
+                    reloadPromiseRef.current = LoadVaultContents(setFiles);
+                    await reloadPromiseRef.current;
+                    reloadPromiseRef.current = null;
+                    resolve();
+                } catch (error) {
+                    reloadPromiseRef.current = null;
+                    console.error("Error reloading vault contents:", error);
+                    reject(error);
+                }
+            }, 50); // 50ms debounce to batch rapid operations
+        });
+    }, []);
 
     const createFile = async (x) => {
         await CreateFile(x, files, vaultPath, setCurrentFile, loadVaultContents);
